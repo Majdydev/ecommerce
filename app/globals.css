@@ -1,14 +1,8 @@
 @import "tailwindcss";
 
-@tailwind utilities;
-
 :root {
   --background: #ffffff;
   --foreground: #171717;
-
-  /* Define these as actual CSS variables that match font variable names */
-  --font-geist-sans: "Inter", system-ui, sans-serif;
-  --font-geist-mono: "Roboto Mono", monospace;
 }
 
 .dark {
@@ -16,25 +10,7 @@
   --foreground: #ededed;
 }
 
-/* Set explicit styling for common elements */
 body {
-  margin: 0;
-  padding: 0;
-  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans);
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-geist-sans);
-}
-
-code,
-pre {
-  font-family: var(--font-geist-mono);
+  background: var(--background);
 }

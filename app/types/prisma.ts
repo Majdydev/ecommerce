@@ -10,3 +10,9 @@ export type User = Awaited<ReturnType<PrismaInstance["user"]["findUnique"]>>;
 export type OrderItem = Awaited<
   ReturnType<PrismaInstance["orderItem"]["findUnique"]>
 >;
+export type Address = Awaited<
+  ReturnType<PrismaInstance["address"]["findUnique"]>
+>;
+export type Category = Awaited<
+  ReturnType<PrismaInstance["category"]["findUnique"]>
+>;

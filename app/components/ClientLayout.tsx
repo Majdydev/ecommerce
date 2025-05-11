@@ -1,11 +1,16 @@
-'use client';
+"use client";
 
-import { SessionProvider } from 'next-auth/react';
+import { ReactNode } from "react";
 
-export default function ClientLayout({ children }: { children: React.ReactNode }) {
+interface ClientLayoutProps {
+  children: ReactNode;
+}
+
+export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
-    <SessionProvider>
-      {children}
-    </SessionProvider>
+    <>
+      {/* Navbar removed from here since it's now in the main layout */}
+      <div className="flex-grow container mx-auto px-4 py-8">{children}</div>
+    </>
   );
 }

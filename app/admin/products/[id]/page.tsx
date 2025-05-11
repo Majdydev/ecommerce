@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import React from "react";
 
 type Product = {
   id: string;
@@ -12,14 +13,16 @@ type Product = {
   stock: number;
 };
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
+export default function EditProductPage() {
+  const params = useParams();
+  const id = params.id as string;
   const [formData, setFormData] = useState<Product>({
-    id: '',
-    name: '',
-    description: '',
+    id: "",
+    name: "",
+    description: "",
     price: 0,
-    image: '',
-    stock: 0
+    image: "",
+    stock: 0,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -27,52 +30,54 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/products/${params.id}`);
+        const response = await fetch(`/api/products/${id}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch product');
+          throw new Error("Failed to fetch product");
         }
         const data = await response.json();
         setFormData(data);
       } catch (error) {
-        console.error('Error fetching product:', error);
-        router.push('/admin/products');
+        console.error("Error fetching product:", error);
+        router.push("/admin/products");
       }
     };
 
     fetchProduct();
-  }, [params.id]);
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
-      const response = await fetch(`/api/products/${params.id}`, {
-        method: 'PUT',
+      const response = await fetch(`/api/products/${id}`, {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update product');
+        throw new Error("Failed to update product");
       }
 
-      router.push('/admin/products');
+      router.push("/admin/products");
     } catch (error) {
-      console.error('Error updating product:', error);
-      alert('Failed to update product. Please try again.');
+      console.error("Error updating product:", error);
+      alert("Failed to update product. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: name === 'price' || name === 'stock' ? parseFloat(value) : value,
+      [name]: name === "price" || name === "stock" ? parseFloat(value) : value,
     }));
   };
 
@@ -81,7 +86,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
       <h1 className="text-2xl font-bold mb-6">Edit Product</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700">Name</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Name
+          </label>
           <input
             type="text"
             name="name"
@@ -92,7 +99,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Description</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Description
+          </label>
           <textarea
             name="description"
             value={formData.description}
@@ -102,7 +111,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Price</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Price
+          </label>
           <input
             type="number"
             name="price"
@@ -115,7 +126,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Stock</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Stock
+          </label>
           <input
             type="number"
             name="stock"
@@ -127,7 +140,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Image URL</label>
+          <label className="block text-sm font-medium text-gray-700">
+            Image URL
+          </label>
           <input
             type="url"
             name="image"
@@ -141,7 +156,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           disabled={isSubmitting}
           className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
         >
-          {isSubmitting ? 'Updating...' : 'Update Product'}
+          {isSubmitting ? "Updating..." : "Update Product"}
         </button>
       </form>
     </div>

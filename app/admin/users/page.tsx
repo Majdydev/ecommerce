@@ -1,48 +1,104 @@
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import { User } from '@/types/prisma';
-import Link from 'next/link';
+"use client";
 
-const prisma = new PrismaClient();
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Navbar from "../../components/Navbar";
 
-async function getUsers() {
-  return await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      updatedAt: true, // Add this to match the expected type
-    },
-  });
-}
+// Define the type that matches what we select from the database
+type UserResult = {
+  id: string;
+  name: string;
+  email: string;
+  role: "ADMIN" | "USER";
+  createdAt: string | Date;
+  updatedAt: string | Date;
+};
 
-export default async function AdminUsersPage() {
-  const session = await getServerSession();
-  
-  if (!session) {
-    redirect('/auth/login');
+export default function AdminUsersPage() {
+  const [users, setUsers] = useState<UserResult[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check session and fetch users
+    const checkSessionAndFetchUsers = async () => {
+      try {
+        // Fetch users from API
+        const response = await fetch("/api/users");
+        if (response.status === 401) {
+          // Redirect to login if unauthorized
+          router.push("/auth/login");
+          return;
+        }
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch users");
+        }
+        
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError("Error loading users. Please try again later.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkSessionAndFetchUsers();
+  }, [router]);
+
+  const handleDeleteUser = async (userId: string) => {
+    if (confirm("Are you sure you want to delete this user?")) {
+      try {
+        const res = await fetch(`/api/users/${userId}`, {
+          method: "DELETE",
+        });
+        
+        if (res.ok) {
+          // Update the users state to remove the deleted user
+          setUsers(users.filter(user => user.id !== userId));
+        } else {
+          const errorData = await res.json();
+          alert(errorData.error || "Error deleting user");
+        }
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("An error occurred while deleting the user");
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <div className="text-center py-10">Loading users...</div>
+        </main>
+      </div>
+    );
   }
-  
-  // Get the full user from the database to check role
-  const user = await prisma.user.findUnique({
-    where: { email: session.user?.email as string },
-  });
-  
-  if (!user || user.role !== 'ADMIN') {
-    redirect('/auth/login');
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+            <p className="text-red-700">{error}</p>
+          </div>
+        </main>
+      </div>
+    );
   }
-  
-  const users = await getUsers();
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      
+
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Manage Users</h1>
@@ -50,11 +106,13 @@ export default async function AdminUsersPage() {
             ← Back to Dashboard
           </Link>
         </div>
-        
+
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           {users.length === 0 ? (
             <div className="text-center py-12">
-              <h2 className="text-xl font-medium text-gray-600 mb-4">No users found</h2>
+              <h2 className="text-xl font-medium text-gray-600 mb-4">
+                No users found
+              </h2>
             </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200">
@@ -72,13 +130,13 @@ export default async function AdminUsersPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Joined
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-               
-                
-                
-                {users.map((user: User) => (
+                {users.map((user) => (
                   <tr key={user.id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {user.name}
@@ -87,14 +145,32 @@ export default async function AdminUsersPage() {
                       {user.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        user.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-gray-100 text-gray-800'
-                      }`}>
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          user.role === "ADMIN"
+                            ? "bg-purple-100 text-purple-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
                         {user.role}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <Link
+                        href={`/admin/users/${user.id}`}
+                        className="text-indigo-600 hover:text-indigo-900 mr-4"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteUser(user.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))}

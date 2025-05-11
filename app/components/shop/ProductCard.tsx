@@ -1,8 +1,8 @@
-'use client';
-
-import Image from 'next/image';
-import Link from 'next/link';
-//import { useCart } from '@/app/context/CartContext';
+"use client";
+import { useState } from "react";
+import { useCartStore } from "../../store/cartStore";
+import Image from "next/image";
+import Link from "next/link";
 
 type ProductCardProps = {
   id: string;
@@ -12,32 +12,38 @@ type ProductCardProps = {
   description: string;
 };
 
-export default function ProductCard({ id, name, price, image, description }: ProductCardProps) {
- // const { addItem } = useCart();
-
+export default function ProductCard({
+  id,
+  name,
+  price,
+  image,
+  description,
+}: ProductCardProps) {
+  const [quantity, setQuantity] = useState(1);
+  const addItem = useCartStore((state) => state.addItem);
   const handleAddToCart = () => {
-    // addItem({
-    //   id,
-    //   name,
-    //   price,
-    //   quantity: 1,
-    //   image,
-    // });
+    addItem({
+      id: id,
+      name: name,
+      price: price,
+      quantity: 1,
+      image: image || "/placeholder.png",
+    });
+
+    // Reset quantity after adding to cart
+    setQuantity(1);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="relative h-48 w-full">
-        <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover"
-        />
+        <Image src={image} alt={name} fill className="object-cover" />
       </div>
       <div className="p-4">
         <Link href={`/products/${id}`}>
-          <h3 className="text-lg font-semibold text-gray-800 hover:text-indigo-600">{name}</h3>
+          <h3 className="text-lg font-semibold text-gray-800 hover:text-indigo-600">
+            {name}
+          </h3>
         </Link>
         <p className="mt-1 text-gray-500 text-sm line-clamp-2">{description}</p>
         <div className="mt-2 flex items-center justify-between">

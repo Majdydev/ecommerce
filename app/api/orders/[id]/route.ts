@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth"
+import { getServerSession } from "next-auth";
 
 const prisma = new PrismaClient();
 
@@ -60,55 +60,44 @@ export async function GET(
   try {
     const session = await getServerSession();
 
-    if (!session || !session.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { id } = params;
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     const order = await prisma.order.findUnique({
-      where: { id },
+      where: { id: params.id },
       include: {
         items: {
           include: {
             product: true,
           },
         },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
+        shippingAddress: true,
       },
     });
 
     if (!order) {
-      return NextResponse.json({ message: "Order not found" }, { status: 404 });
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // Check if user is admin or the order belongs to the user
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email as string },
-    });
-
-    if (!user) {
-      return NextResponse.json({ message: "User not found" }, { status: 404 });
-    }
-
-    if (user.role !== "ADMIN" && order.userId !== user.id) {
-      return NextResponse.json(
-        { message: "Forbidden: You do not have access to this order" },
-        { status: 403 }
-      );
+    // Check if the order belongs to the user or if user is admin
+    if (order.userId !== user.id && user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
     }
 
     return NextResponse.json(order);
   } catch (error) {
-    console.error("Get order error:", error);
+    console.error("Error fetching order:", error);
     return NextResponse.json(
-      { message: "An error occurred while fetching the order" },
+      { error: "Error fetching order" },
       { status: 500 }
     );
   }

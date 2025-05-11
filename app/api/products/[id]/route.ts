@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { User } from "@/types/prisma"; // Import User type from prisma.ts
+import { User } from "../../../types/prisma"; // Import User type from prisma.ts
 
 const prisma = new PrismaClient();
 
@@ -11,16 +11,13 @@ export async function GET(
 ) {
   try {
     const { id } = params;
-    
+
     const product = await prisma.product.findUnique({
       where: { id },
     });
 
     if (!product) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     return NextResponse.json(product);
@@ -39,7 +36,7 @@ export async function PUT(
   try {
     const session = await getServerSession();
     const user = session?.user as User | undefined; // Use the imported User type
-    
+
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -53,10 +50,7 @@ export async function PUT(
     });
 
     if (!existingProduct) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     // Update product
@@ -80,10 +74,28 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Update how we fetch and validate the session
     const session = await getServerSession();
-    const user = session?.user as User | undefined; // Use the imported User type
-    
-    if (!user || user.role !== "ADMIN") {
+
+    // More thorough session validation
+    if (!session || !session.user) {
+      console.log("Unauthorized: No session or user");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Get full user from database to check role
+    const userEmail = session.user.email;
+    if (!userEmail) {
+      console.log("Unauthorized: No user email in session");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { email: userEmail },
+    });
+
+    if (!dbUser || dbUser.role !== "ADMIN") {
+      console.log("Unauthorized: User not admin", dbUser?.role);
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -95,10 +107,7 @@ export async function DELETE(
     });
 
     if (!existingProduct) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     // Delete product

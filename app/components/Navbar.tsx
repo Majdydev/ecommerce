@@ -1,89 +1,89 @@
 "use client";
 
 import Link from "next/link";
+import { ShoppingCart, User, LogOut } from "lucide-react";
 import { useCartStore } from "../store/cartStore";
 import { useSession, signOut } from "next-auth/react";
-import { ShoppingCart, User as UserIcon, LogOut } from "lucide-react";
-import { User } from "../types/prisma";
+import Logo from "./ui/Logo";
 
 export default function Navbar() {
-  const totalItems = useCartStore((state) => state.totalItems);
+  const { items } = useCartStore();
   const { data: session } = useSession();
 
-  const user = session?.user as (User & { role?: string }) | undefined;
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex">
-            <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-gray-800">
-                E-Shop
-              </Link>
-            </div>
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link
-                href="/"
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Home
-              </Link>
-              <Link
-                href="/products"
-                className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-              >
-                Products
-              </Link>
-              {user?.role === "ADMIN" && (
-                <Link
-                  href="/admin"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Admin Dashboard
-                </Link>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center">
+    <header className="bg-white shadow-sm">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <Logo size="md" />
+
+          {/* Main Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link
+              href="/products"
+              className="text-gray-700 hover:text-indigo-600"
+            >
+              Books
+            </Link>
+            <Link href="/about" className="text-gray-700 hover:text-indigo-600">
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="text-gray-700 hover:text-indigo-600"
+            >
+              Contact
+            </Link>
+          </nav>
+
+          {/* User Actions */}
+          <div className="flex items-center space-x-6">
+            {/* Cart */}
             <Link
               href="/cart"
-              className="p-2 text-gray-400 hover:text-gray-500 relative"
+              className="flex items-center text-gray-700 hover:text-indigo-600 relative"
             >
-              <ShoppingCart className="h-6 w-6" />
-              {totalItems > 0 && (
-                <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
-                  {totalItems}
+              <ShoppingCart size={24} />
+              {items.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {items.length}
                 </span>
               )}
             </Link>
 
+            {/* User Account */}
             {session ? (
-              <div className="ml-4 flex items-center">
+              <div className="flex items-center space-x-4">
                 <Link
-                  href="/user/profile"
-                  className="p-2 text-gray-400 hover:text-gray-500"
+                  href="/profile"
+                  className="flex items-center text-gray-700 hover:text-indigo-600"
                 >
-                  <UserIcon className="h-6 w-6" />
+                  <User size={24} />
                 </Link>
+
                 <button
-                  onClick={() => signOut()}
-                  className="ml-2 p-2 text-gray-400 hover:text-gray-500"
+                  onClick={handleSignOut}
+                  className="flex items-center text-gray-700 hover:text-red-600"
                 >
-                  <LogOut className="h-6 w-6" />
+                  <LogOut size={22} />
                 </button>
               </div>
             ) : (
               <Link
                 href="/auth/login"
-                className="ml-4 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                className="flex items-center space-x-2 text-gray-700 hover:text-indigo-600"
               >
-                Sign in
+                <User size={24} />
+                <span className="hidden md:inline">Sign In</span>
               </Link>
             )}
           </div>
         </div>
       </div>
-    </nav>
+    </header>
   );
 }
