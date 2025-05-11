@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { User } from "@/types/prisma";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +10,7 @@ declare module "next-auth" {
     id: string;
     email: string;
     name: string;
-    role: 'USER' | 'ADMIN';
+    role: "USER" | "ADMIN";
   }
   interface Session {
     user: User;
@@ -66,7 +65,7 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (session?.user) {
-        session.user.role = token.role as 'USER' | 'ADMIN';
+        session.user.role = token.role as "USER" | "ADMIN";
       }
       return session;
     },

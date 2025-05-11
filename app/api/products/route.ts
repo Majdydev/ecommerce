@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client"; // Import Prisma namespace
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 
@@ -14,14 +14,13 @@ export async function GET(request: Request) {
     const limit = limitParam ? parseInt(limitParam) : undefined;
     const categoryId = url.searchParams.get("categoryId");
 
-    // Build query options
-    const queryOptions: any = {
-      include: {
-        category: includeCategory,
-      },
+    // Use Prisma.ProductFindManyArgs for proper typing
+    const queryOptions: Prisma.ProductFindManyArgs = {
+      include: includeCategory ? { category: true } : undefined,
       orderBy: {
         createdAt: "desc",
       },
+      where: {},
     };
 
     // Apply filters
@@ -32,13 +31,16 @@ export async function GET(request: Request) {
       };
     }
 
+    // Apply featured filter if needed
+    if (featured) {
+      // If you had a featured field, you could use it like:
+      // queryOptions.where.featured = true;
+    }
+
     // Apply limit if specified
     if (limit && !isNaN(limit)) {
       queryOptions.take = limit;
     }
-
-    // For now, we don't have a featured field, so we'll just get the latest products
-    // In a real app, you might have a featured field to filter by
 
     const products = await prisma.product.findMany(queryOptions);
     return NextResponse.json(products);

@@ -5,7 +5,7 @@ import { authOptions } from "../../lib/auth";
 
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const categories = await prisma.category.findMany({
       include: {
@@ -25,15 +25,12 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    // Use authOptions to correctly get session with user role
     const session = await getServerSession(authOptions);
 
-    // Check if user is authenticated and is an admin
     if (!session?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    // Check admin role from the user object retrieved from the database
     const user = await prisma.user.findUnique({
       where: { email: session.user.email as string },
       select: { role: true },
@@ -48,15 +45,12 @@ export async function POST(request: Request) {
 
     const data = await request.json();
 
-    // Validate required fields
     if (!data.name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Create slug if not provided
     const slug = data.slug || data.name.toLowerCase().replace(/\s+/g, "-");
 
-    // Create category with proper typing
     const category = await prisma.category.create({
       data: {
         name: data.name,

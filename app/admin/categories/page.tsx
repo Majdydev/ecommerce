@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Plus, Edit, Trash2, ChevronRight } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { Category } from "../../types/prisma";
 
 export default function AdminCategoriesPage() {

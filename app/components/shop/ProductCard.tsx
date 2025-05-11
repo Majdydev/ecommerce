@@ -1,10 +1,9 @@
 "use client";
-import { useState } from "react";
 import { useCartStore } from "../../store/cartStore";
 import Image from "next/image";
 import Link from "next/link";
 
-type ProductCardProps = {
+type Product = {
   id: string;
   name: string;
   price: number;
@@ -12,42 +11,41 @@ type ProductCardProps = {
   description: string;
 };
 
-export default function ProductCard({
-  id,
-  name,
-  price,
-  image,
-  description,
-}: ProductCardProps) {
-  const [quantity, setQuantity] = useState(1);
+export default function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((state) => state.addItem);
   const handleAddToCart = () => {
     addItem({
-      id: id,
-      name: name,
-      price: price,
+      id: product.id,
+      name: product.name,
+      price: product.price,
       quantity: 1,
-      image: image || "/placeholder.png",
+      image: product.image || "/placeholder.png",
     });
-
-    // Reset quantity after adding to cart
-    setQuantity(1);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <div className="relative h-48 w-full">
-        <Image src={image} alt={name} fill className="object-cover" />
+        <Image
+          src={product.image}
+          alt={product.name}
+          fill
+          className="object-cover"
+        />
       </div>
       <div className="p-4">
-        <Link href={`/products/${id}`}>
+        <Link href={`/products/${product.id}`}>
           <h3 className="text-lg font-semibold text-gray-800 hover:text-indigo-600">
-            {name}
+            {product.name}
           </h3>
         </Link>
-        <p className="mt-1 text-gray-500 text-sm line-clamp-2">{description}</p>
+        <p className="mt-1 text-gray-500 text-sm line-clamp-2">
+          {product.description}
+        </p>
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-gray-900 font-bold">${price.toFixed(2)}</span>
+          <span className="text-gray-900 font-bold">
+            ${product.price.toFixed(2)}
+          </span>
           <button
             onClick={handleAddToCart}
             className="px-3 py-1 bg-indigo-600 text-white text-sm font-medium rounded hover:bg-indigo-700"

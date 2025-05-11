@@ -3,20 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Navbar from "../../components/Navbar";
 
-// Define the type that matches what we select from the database
-type UserResult = {
+// Update the UserType to include createdAt
+type UserType = {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "USER";
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  role: string;
+  createdAt: string; // Add this missing property
 };
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState<UserResult[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();

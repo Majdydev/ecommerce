@@ -23,9 +23,9 @@ export default function AboutPage() {
             About Pukapuka
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Your premier destination for books of all genres. We're passionate
-            about literature and dedicated to bringing the best reading
-            experience to our customers.
+            Your premier destination for books of all genres. We&apos;re
+            passionate about literature and dedicated to bringing the best
+            reading experience to our customers.
           </p>
         </div>
 
@@ -47,9 +47,9 @@ export default function AboutPage() {
               </p>
               <p className="text-gray-700">
                 We believe that books have the power to educate, inspire, and
-                transform lives. That's why we're committed to promoting
-                literacy and fostering a love for reading in communities
-                everywhere.
+                transform lives. That&apos;s why we&apos;re committed to
+                promoting literacy and fostering a love for reading in
+                communities everywhere.
               </p>
             </div>
             <div className="bg-gray-100 p-8 rounded-lg">
@@ -109,7 +109,7 @@ export default function AboutPage() {
                 <p className="text-indigo-600 mb-3">Founder & CEO</p>
                 <p className="text-gray-600">
                   With over 15 years in publishing, Jane brings expertise and
-                  passion to Pukapuka's mission.
+                  passion to Pukapuka&apos;s mission.
                 </p>
               </div>
             </div>
@@ -121,8 +121,8 @@ export default function AboutPage() {
                 <h3 className="text-xl font-semibold">John Smith</h3>
                 <p className="text-indigo-600 mb-3">Head of Curation</p>
                 <p className="text-gray-600">
-                  John's literary expertise ensures our catalog features only
-                  the highest quality selections.
+                  John&apos;s literary expertise ensures our catalog features
+                  only the highest quality selections.
                 </p>
               </div>
             </div>

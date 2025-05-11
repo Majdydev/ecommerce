@@ -165,7 +165,7 @@ export default function CartPageContent() {
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
         <p className="mb-8 text-gray-600">
-          Looks like you haven't added anything to your cart yet.
+          Looks like you haven&apos;t added anything to your cart yet.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Link
@@ -176,7 +176,7 @@ export default function CartPageContent() {
           </Link>
           <Link
             href="/"
-            className="inline-block bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition flex items-center justify-center gap-2"
+            className="flex items-center justify-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition"
           >
             <Home size={18} /> Go to Homepage
           </Link>

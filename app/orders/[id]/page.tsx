@@ -44,7 +44,7 @@ type Order = {
 };
 
 export default function OrderDetailPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const params = useParams();
   const orderId = params.id as string;
@@ -54,14 +54,14 @@ export default function OrderDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Redirect if user is not logged in
-    if (status === "unauthenticated") {
+    if (!session) {
+      // Redirect or show message for unauthenticated users
       router.push("/auth/login?callbackUrl=/orders");
       return;
     }
 
     const fetchOrder = async () => {
-      if (status === "authenticated" && orderId) {
+      if (orderId) {
         setLoading(true);
         try {
           const response = await fetch(`/api/orders/${orderId}`);
@@ -87,7 +87,7 @@ export default function OrderDetailPage() {
     };
 
     fetchOrder();
-  }, [status, router, orderId]);
+  }, [session, router, orderId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {

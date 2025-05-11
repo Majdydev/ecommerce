@@ -48,7 +48,7 @@ export async function POST(request: Request) {
     // Hash the password
     const hashedPassword = await hash(password, 12);
 
-    // Create the user
+    // Create the user without returning the password
     const newUser = await prisma.user.create({
       data: {
         name,
@@ -56,19 +56,24 @@ export async function POST(request: Request) {
         password: hashedPassword,
         role: role === "ADMIN" ? "ADMIN" : "USER",
       },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
 
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = newUser;
-
-    return NextResponse.json(userWithoutPassword, { status: 201 });
+    return NextResponse.json(newUser, { status: 201 });
   } catch (error) {
     console.error("Error creating user:", error);
     return NextResponse.json({ error: "Error creating user" }, { status: 500 });
   }
 }
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // Check if the user is authenticated and is an admin
     const session = await getServerSession();
@@ -85,7 +90,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get all users
+    // Get all users without passwords
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -104,5 +109,52 @@ export async function GET(request: Request) {
       { error: "Error fetching users" },
       { status: 500 }
     );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    // Check if the user is authenticated and is an admin
+    const session = await getServerSession();
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const adminUser = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!adminUser || adminUser.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id, ...updateData } = await request.json();
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Update user without returning the password
+    const updatedUser = await prisma.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return NextResponse.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user:", error);
+    return NextResponse.json({ error: "Error updating user" }, { status: 500 });
   }
 }

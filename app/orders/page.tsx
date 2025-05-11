@@ -43,41 +43,38 @@ type Order = {
 };
 
 export default function OrdersPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Redirect if user is not logged in
-    if (status === "unauthenticated") {
+    if (!session) {
       router.push("/auth/login?callbackUrl=/orders");
       return;
     }
 
     const fetchOrders = async () => {
-      if (status === "authenticated") {
-        setLoading(true);
-        try {
-          const response = await fetch("/api/orders");
-          if (!response.ok) {
-            throw new Error("Failed to fetch orders");
-          }
-
-          const data = await response.json();
-          setOrders(data);
-        } catch (err) {
-          console.error("Error fetching orders:", err);
-          setError("Failed to load your orders. Please try again later.");
-        } finally {
-          setLoading(false);
+      setLoading(true);
+      try {
+        const response = await fetch("/api/orders");
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
         }
+
+        const data = await response.json();
+        setOrders(data);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError("Failed to load your orders. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchOrders();
-  }, [status, router]);
+  }, [session, router]);
 
   // Get icon and colors for different status values
   const getStatusInfo = (status: string) => {
@@ -185,7 +182,7 @@ export default function OrdersPage() {
               No orders yet
             </h3>
             <p className="mt-2 text-gray-500">
-              You haven't placed any orders yet.
+              You haven&apos;t placed any orders yet.
             </p>
             <div className="mt-6">
               <Link

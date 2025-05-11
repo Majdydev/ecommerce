@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 // Update address
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
@@ -25,8 +25,8 @@ export async function PUT(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use the id parameter after destructuring it
-    const { id } = params;
+    // Use the id parameter after awaiting the promise
+    const id = (await params).id;
 
     // Get address to validate ownership
     const existingAddress = await prisma.address.findUnique({
@@ -43,19 +43,19 @@ export async function PUT(
 
     // Get update data
     const data = await request.json();
-    
+
     // If setting as default, unset other defaults first
     if (data.isDefault) {
       await prisma.address.updateMany({
         where: { userId: user.id, isDefault: true },
-        data: { isDefault: false }
+        data: { isDefault: false },
       });
     }
 
     // Update address using the destructured id
     const updatedAddress = await prisma.address.update({
       where: { id },
-      data
+      data,
     });
 
     return NextResponse.json(updatedAddress);
@@ -71,11 +71,11 @@ export async function PUT(
 // Delete address
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
@@ -89,8 +89,8 @@ export async function DELETE(
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Use the id parameter after destructuring it
-    const { id } = params;
+    // Use the id parameter after awaiting the promise
+    const id = (await params).id;
 
     // Get address to validate ownership
     const address = await prisma.address.findUnique({

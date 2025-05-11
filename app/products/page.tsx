@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import ProductCard from "../components/shop/ProductCard";
-import Navbar from "../components/Navbar";
 
 type Product = {
   id: string;
@@ -60,11 +59,7 @@ export default function ProductsPage() {
             {products.map((product) => (
               <ProductCard
                 key={product.id}
-                id={product.id}
-                name={product.name}
-                price={product.price}
-                image={product.image}
-                description={product.description}
+                product={product} // Pass the entire product object instead of individual props
               />
             ))}
           </div>

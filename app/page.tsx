@@ -73,6 +73,23 @@ export default function Home() {
     fetchData();
   }, []);
 
+  // Fetch featured products
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch("/api/products?featured=true&limit=6");
+        if (response.ok) {
+          const data = await response.json();
+          setFeaturedProducts(data);
+        }
+      } catch (error) {
+        console.error("Error fetching featured products:", error);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
+
   // Filter products when category or search changes
   useEffect(() => {
     let result = [...allProducts].filter(Boolean); // Filter out any null values
@@ -447,7 +464,34 @@ export default function Home() {
           )}
         </div>
 
-        {/* Featured Categories Section */}
+        {/* Featured Products Section */}
+        {featuredProducts.length > 0 && (
+          <div className="max-w-7xl mx-auto py-12 px-4">
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
+              Featured Products
+            </h2>
+            <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredProducts.map((product) => (
+                <div key={product?.id} className="group relative">
+                  <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75">
+                    <Image
+                      src={product?.image || "/images/product-placeholder.jpg"}
+                      alt={product?.name as string}
+                      fill
+                      className="object-cover object-center"
+                    />
+                  </div>
+                  <h3 className="mt-4 text-sm text-gray-700">
+                    {product?.name}
+                  </h3>
+                  <p className="mt-1 text-lg font-medium text-gray-900">
+                    ${product?.price.toFixed(2)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       <footer className="bg-gray-800 text-white py-8">

@@ -6,7 +6,7 @@ import { Address } from "../../../types/prisma";
 const prisma = new PrismaClient();
 
 // GET user's addresses
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession();
 

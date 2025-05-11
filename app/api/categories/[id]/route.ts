@@ -1,17 +1,17 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../../lib/auth";
+import { authOptions } from "../../../lib/auth"; // adjust path if needed
 
 const prisma = new PrismaClient();
 
+// GET: Fetch a category by ID
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Access id directly from context without destructuring
-    const id = context.params.id;
+    const id = (await params).id;
 
     const category = await prisma.category.findUnique({
       where: { id },
@@ -39,40 +39,32 @@ export async function GET(
   }
 }
 
+// PUT: Update a category
 export async function PUT(
-  request: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const id = (await params).id;
 
-    // Check if user is authenticated and is an admin
     if (!session?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email as string },
-      select: { role: true },
-    });
-
-    if (!user || user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN") {
       return NextResponse.json(
         { error: "Unauthorized: Admin access required" },
         { status: 403 }
       );
     }
 
-    // Access id directly from context
-    const id = context.params.id;
-    const data = await request.json();
+    const data = await req.json();
 
-    // Validate required fields
     if (!data.name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Don't allow setting itself as parent
     if (data.parentId === id) {
       return NextResponse.json(
         { error: "Category cannot be its own parent" },
@@ -80,8 +72,7 @@ export async function PUT(
       );
     }
 
-    // Update category
-    const category = await prisma.category.update({
+    const updated = await prisma.category.update({
       where: { id },
       data: {
         name: data.name,
@@ -90,7 +81,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(category);
+    return NextResponse.json(updated);
   } catch (error) {
     console.error("Failed to update category:", error);
     return NextResponse.json(
@@ -100,34 +91,26 @@ export async function PUT(
   }
 }
 
+// DELETE: Delete a category
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const id = (await params).id;
 
-    // Check admin authentication
     if (!session?.user) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email as string },
-      select: { role: true },
-    });
-
-    if (!user || user.role !== "ADMIN") {
+    if (session.user.role !== "ADMIN") {
       return NextResponse.json(
         { error: "Unauthorized: Admin access required" },
         { status: 403 }
       );
     }
 
-    // Access id directly from context
-    const id = context.params.id;
-
-    // Check if category has child categories
     const childCategories = await prisma.category.findMany({
       where: { parentId: id },
     });
@@ -139,13 +122,13 @@ export async function DELETE(
       );
     }
 
-    // Update products to remove category reference
+    // Unassign products from this category
     await prisma.product.updateMany({
       where: { categoryId: id },
       data: { categoryId: null },
     });
 
-    // Delete category
+    // Delete the category
     await prisma.category.delete({
       where: { id },
     });

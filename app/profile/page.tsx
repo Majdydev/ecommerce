@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import ClientLayout from "../components/ClientLayout";
 import {
   User,
@@ -120,8 +119,8 @@ export default function ProfilePage() {
         const addressesData = await addressesRes.json();
         setAddresses(addressesData);
       }
-    } catch (err) {
-      console.error("Error fetching user data:", err);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
       setError("Failed to load profile data. Please try again.");
     } finally {
       setLoading(false);
@@ -157,7 +156,8 @@ export default function ProfilePage() {
       if (session) {
         await updateSession({ name: profileForm.name });
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Error updating profile:", error);
       setFormErrors({ general: "An error occurred. Please try again." });
     }
   };
@@ -197,7 +197,8 @@ export default function ProfilePage() {
         newPassword: "",
         confirmPassword: "",
       });
-    } catch (err) {
+    } catch (error) {
+      console.error("Error updating password:", error);
       setFormErrors({ general: "An error occurred. Please try again." });
     }
   };
@@ -306,7 +307,8 @@ export default function ProfilePage() {
           setIsAddingAddress(false);
         }
       }
-    } catch (err) {
+    } catch (error) {
+      console.error("Error submitting address:", error);
       setFormErrors({ general: "An error occurred. Please try again." });
     }
   };
@@ -328,7 +330,8 @@ export default function ProfilePage() {
         prevAddresses.filter((addr) => addr && addr.id !== addressId)
       );
       setFormSuccess("Address deleted successfully");
-    } catch (err) {
+    } catch (error) {
+      console.error("Error deleting address:", error);
       setFormErrors({ general: "Failed to delete address" });
     }
   };

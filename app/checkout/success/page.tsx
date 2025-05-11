@@ -31,9 +31,9 @@ export default function CheckoutSuccessPage() {
           <h1 className="text-3xl font-bold mt-6 mb-2 text-green-800">
             Order Placed Successfully!
           </h1>
-          <p className="text-gray-600 mb-4">
-            Thank you for your purchase. We've received your order and it's
-            being processed.
+          <p className="text-center text-gray-600 mb-8">
+            We&apos;ll send you an email confirmation with details and tracking
+            info.
           </p>
           <div className="mt-2 inline-flex items-center justify-center px-4 py-2 bg-green-100 text-green-800 rounded-full">
             <span className="text-sm font-medium">Order confirmed</span>
@@ -50,7 +50,8 @@ export default function CheckoutSuccessPage() {
                 1
               </span>
               <span>
-                We'll send you an email confirmation with your order details.
+                We&apos;ll send you an email confirmation with your order
+                details.
               </span>
             </li>
             <li className="flex items-start">
@@ -64,11 +65,15 @@ export default function CheckoutSuccessPage() {
                 3
               </span>
               <span>
-                You'll receive another notification when your order ships.
+                You&apos;ll receive another notification when your order ships.
               </span>
             </li>
           </ol>
         </div>
+
+        <p className="text-gray-500">
+          Don&apos;t hesitate to contact our support team.
+        </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
@@ -115,6 +120,10 @@ export default function CheckoutSuccessPage() {
             <span>Continue Shopping</span>
           </Link>
         </div>
+
+        <p className="text-center text-sm text-gray-500 mb-8">
+          We&apos;ve sent a receipt to your email address.
+        </p>
       </div>
     </ClientLayout>
   );

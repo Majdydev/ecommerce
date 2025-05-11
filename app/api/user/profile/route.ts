@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 const prisma = new PrismaClient();
 
 // GET current user profile
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession();
 

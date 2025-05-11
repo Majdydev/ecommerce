@@ -67,8 +67,8 @@ export default function ContactPage() {
             Contact Us
           </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Have a question or need assistance? We're here to help! Reach out to
-            our friendly team through any of the methods below.
+            Have a question or need assistance? We&apos;re here to help! Reach
+            out to our friendly team through any of the methods below.
           </p>
         </div>
 
@@ -188,6 +188,10 @@ export default function ContactPage() {
           <div className="bg-white p-8 rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
 
+            <p className="mb-6">
+              We&apos;d love to hear from you! Fill out the form below...
+            </p>
+
             {formStatus === "success" ? (
               <div className="bg-green-50 border border-green-100 rounded-md p-6 text-center">
                 <CheckCircle
@@ -198,7 +202,8 @@ export default function ContactPage() {
                   Message Sent!
                 </h3>
                 <p className="text-green-600">
-                  Thank you for reaching out. We'll get back to you shortly.
+                  Thank you for reaching out. We&apos;ll get back to you
+                  shortly.
                 </p>
               </div>
             ) : (
@@ -323,6 +328,8 @@ export default function ContactPage() {
           </div>
         </div>
 
+        <p className="mb-6">If you&apos;re looking for support...</p>
+
         {/* Map Section */}
         <div className="mt-16">
           <h2 className="text-2xl font-bold mb-6">Find Us</h2>
@@ -357,7 +364,7 @@ export default function ContactPage() {
                 How can I track my order?
               </h3>
               <p className="text-gray-600">
-                Once your order ships, you'll receive a tracking number via
+                Once your order ships, you&apos;ll receive a tracking number via
                 email that you can use to monitor your delivery status.
               </p>
             </div>
@@ -383,6 +390,8 @@ export default function ContactPage() {
             </div>
           </div>
         </div>
+
+        <p className="font-medium">We&apos;re here to help...</p>
       </div>
     </ClientLayout>
   );

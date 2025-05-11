@@ -4,6 +4,18 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Category } from "../../../types/prisma";
 
+// Helper function to determine if one category is a descendant of another
+const isDescendantOf = (
+  allCategories: Category[],
+  potentialParentId: string,
+  childId: string
+): boolean => {
+  const child = allCategories.find((c) => c?.id === childId);
+  if (!child || !child.parentId) return false;
+  if (child.parentId === potentialParentId) return true;
+  return isDescendantOf(allCategories, potentialParentId, child.parentId);
+};
+
 export default function EditCategoryPage() {
   const router = useRouter();
   const params = useParams();
@@ -60,18 +72,6 @@ export default function EditCategoryPage() {
 
     fetchData();
   }, [id, router]);
-
-  // Helper function to determine if one category is a descendant of another
-  const isDescendantOf = (
-    allCategories: Category[],
-    potentialParentId: string,
-    childId: string
-  ): boolean => {
-    const child = allCategories.find((c) => c?.id === childId);
-    if (!child || !child.parentId) return false;
-    if (child.parentId === potentialParentId) return true;
-    return isDescendantOf(allCategories, potentialParentId, child.parentId);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

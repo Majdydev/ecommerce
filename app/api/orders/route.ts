@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 export async function POST(request: Request) {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
@@ -21,14 +21,20 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
-    
+
     // Validate required fields
     if (!data.items || !Array.isArray(data.items) || data.items.length === 0) {
-      return NextResponse.json({ error: "Order items are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Order items are required" },
+        { status: 400 }
+      );
     }
 
-    if (typeof data.total !== 'number' || data.total <= 0) {
-      return NextResponse.json({ error: "Valid order total is required" }, { status: 400 });
+    if (typeof data.total !== "number" || data.total <= 0) {
+      return NextResponse.json(
+        { error: "Valid order total is required" },
+        { status: 400 }
+      );
     }
 
     // Check if all products exist and have enough stock
@@ -36,17 +42,23 @@ export async function POST(request: Request) {
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
       });
-      
+
       if (!product) {
-        return NextResponse.json({ 
-          error: `Product with ID ${item.productId} not found` 
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: `Product with ID ${item.productId} not found`,
+          },
+          { status: 400 }
+        );
       }
-      
+
       if (product.stock < item.quantity) {
-        return NextResponse.json({ 
-          error: `Insufficient stock for product: ${product.name}` 
-        }, { status: 400 });
+        return NextResponse.json(
+          {
+            error: `Insufficient stock for product: ${product.name}`,
+          },
+          { status: 400 }
+        );
       }
     }
 
@@ -59,31 +71,37 @@ export async function POST(request: Request) {
           total: data.total,
           addressId: data.addressId || undefined, // Handle case when address is not provided
           items: {
-            create: data.items.map((item: any) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price
-            }))
-          }
+            create: data.items.map(
+              (item: {
+                productId: number;
+                quantity: number;
+                price: number;
+              }) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+              })
+            ),
+          },
         },
         include: {
           items: true,
-          shippingAddress: true
-        }
+          shippingAddress: true,
+        },
       });
-      
+
       // 2. Update product stock
       for (const item of data.items) {
         await tx.product.update({
           where: { id: item.productId },
           data: {
             stock: {
-              decrement: item.quantity
-            }
-          }
+              decrement: item.quantity,
+            },
+          },
         });
       }
-      
+
       return newOrder;
     });
 
@@ -98,10 +116,10 @@ export async function POST(request: Request) {
 }
 
 // Get all orders for the user
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const session = await getServerSession();
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
@@ -116,18 +134,18 @@ export async function GET(request: Request) {
 
     // Check for admin role to determine if we should return all orders
     const isAdmin = user.role === "ADMIN";
-    
+
     const orders = await prisma.order.findMany({
       where: isAdmin ? {} : { userId: user.id },
       orderBy: { createdAt: "desc" },
       include: {
         items: {
           include: {
-            product: true
-          }
+            product: true,
+          },
         },
-        shippingAddress: true
-      }
+        shippingAddress: true,
+      },
     });
 
     return NextResponse.json(orders);

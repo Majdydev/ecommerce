@@ -7,11 +7,11 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Access id directly from context
-    const id = context.params.id;
+    // Await and access id properly
+    const id = (await params).id;
 
     const url = new URL(request.url);
     const includeCategory = url.searchParams.get("includeCategory") === "true";
@@ -39,7 +39,7 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get the authenticated session
@@ -58,8 +58,8 @@ export async function PUT(
       );
     }
 
-    // Access id directly from context
-    const id = context.params.id;
+    // Await and access id properly
+    const id = (await params).id;
     const data = await request.json();
 
     // Validate required fields
@@ -95,7 +95,7 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  context: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get the authenticated session
@@ -114,8 +114,8 @@ export async function DELETE(
       );
     }
 
-    // Access id directly from context
-    const id = context.params.id;
+    // Await and access id properly
+    const id = (await params).id;
 
     // Delete product
     await prisma.product.delete({
