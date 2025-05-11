@@ -1,9 +1,24 @@
 import { NextResponse } from "next/server";
-import { PrismaClient, Prisma } from "@prisma/client"; // Import Prisma namespace
+import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 
 const prisma = new PrismaClient();
+
+// Define our own query options type instead of using Prisma.ProductFindManyArgs
+type ProductQueryOptions = {
+  include?: {
+    category?: boolean;
+  };
+  orderBy?: {
+    createdAt: "asc" | "desc";
+  };
+  where?: {
+    categoryId?: string;
+    // Add other potential filter fields here
+  };
+  take?: number;
+};
 
 export async function GET(request: Request) {
   try {
@@ -14,8 +29,8 @@ export async function GET(request: Request) {
     const limit = limitParam ? parseInt(limitParam) : undefined;
     const categoryId = url.searchParams.get("categoryId");
 
-    // Use Prisma.ProductFindManyArgs for proper typing
-    const queryOptions: Prisma.ProductFindManyArgs = {
+    // Use our custom type instead of Prisma.ProductFindManyArgs
+    const queryOptions: ProductQueryOptions = {
       include: includeCategory ? { category: true } : undefined,
       orderBy: {
         createdAt: "desc",
@@ -33,8 +48,7 @@ export async function GET(request: Request) {
 
     // Apply featured filter if needed
     if (featured) {
-      // If you had a featured field, you could use it like:
-      // queryOptions.where.featured = true;
+      // Example: You could add a featured filter here if your schema supports it
     }
 
     // Apply limit if specified
