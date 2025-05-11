@@ -32,11 +32,11 @@ export default function AdminUsersPage() {
           router.push("/auth/login");
           return;
         }
-        
+
         if (!response.ok) {
           throw new Error("Failed to fetch users");
         }
-        
+
         const data = await response.json();
         setUsers(data);
       } catch (err) {
@@ -56,10 +56,10 @@ export default function AdminUsersPage() {
         const res = await fetch(`/api/users/${userId}`, {
           method: "DELETE",
         });
-        
+
         if (res.ok) {
           // Update the users state to remove the deleted user
-          setUsers(users.filter(user => user.id !== userId));
+          setUsers(users.filter((user) => user.id !== userId));
         } else {
           const errorData = await res.json();
           alert(errorData.error || "Error deleting user");
@@ -74,7 +74,6 @@ export default function AdminUsersPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="text-center py-10">Loading users...</div>
         </main>
@@ -85,7 +84,6 @@ export default function AdminUsersPage() {
   if (error) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Navbar />
         <main className="flex-grow container mx-auto px-4 py-8">
           <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
             <p className="text-red-700">{error}</p>
@@ -97,8 +95,6 @@ export default function AdminUsersPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Manage Users</h1>

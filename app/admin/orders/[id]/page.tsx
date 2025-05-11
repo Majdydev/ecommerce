@@ -58,8 +58,6 @@ export default async function AdminOrderDetailPage({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="mb-6 flex justify-between items-center">
           <Link
@@ -131,7 +129,8 @@ export default async function AdminOrderDetailPage({
                           <br />
                         </>
                       )}
-                      {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+                      {order.shippingAddress.city},{" "}
+                      {order.shippingAddress.state}{" "}
                       {order.shippingAddress.postalCode}
                       <br />
                       {order.shippingAddress.country}

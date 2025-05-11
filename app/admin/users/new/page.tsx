@@ -56,8 +56,6 @@ export default function AddUserPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Add New User</h1>

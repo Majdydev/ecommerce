@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { Category } from "../../../types/prisma";
 import React from "react";
 
 type Product = {
@@ -11,6 +12,7 @@ type Product = {
   price: number;
   image: string;
   stock: number;
+  categoryId: string | null;
 };
 
 export default function EditProductPage() {
@@ -23,27 +25,38 @@ export default function EditProductPage() {
     price: 0,
     image: "",
     stock: 0,
+    categoryId: null,
   });
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndCategories = async () => {
       try {
-        const response = await fetch(`/api/products/${id}`);
-        if (!response.ok) {
+        // Fetch product data
+        const productResponse = await fetch(`/api/products/${id}`);
+        if (!productResponse.ok) {
           throw new Error("Failed to fetch product");
         }
-        const data = await response.json();
-        setFormData(data);
+        const productData = await productResponse.json();
+        setFormData(productData);
+
+        // Fetch categories
+        const categoryResponse = await fetch("/api/categories");
+        if (!categoryResponse.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const categoryData = await categoryResponse.json();
+        setCategories(categoryData);
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error fetching data:", error);
         router.push("/admin/products");
       }
     };
 
-    fetchProduct();
-  }, [id]);
+    fetchProductAndCategories();
+  }, [id, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,12 +85,21 @@ export default function EditProductPage() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "price" || name === "stock" ? parseFloat(value) : value,
+      [name]:
+        name === "price" || name === "stock"
+          ? parseFloat(value)
+          : name === "categoryId"
+          ? value === ""
+            ? null
+            : value
+          : value,
     }));
   };
 
@@ -98,6 +120,27 @@ export default function EditProductPage() {
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           />
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Category
+          </label>
+          <select
+            name="categoryId"
+            value={formData.categoryId || ""}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+          >
+            <option value="">No Category</option>
+            {categories &&
+              categories.filter(Boolean).map((category) => (
+                <option key={category?.id} value={category?.id}>
+                  {category?.name}
+                </option>
+              ))}
+          </select>
+        </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700">
             Description

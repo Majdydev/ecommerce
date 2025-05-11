@@ -16,7 +16,7 @@ export default function Navbar() {
 
   return (
     <header className="bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-4 ">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Logo size="md" />
@@ -27,7 +27,7 @@ export default function Navbar() {
               href="/products"
               className="text-gray-700 hover:text-indigo-600"
             >
-              Books
+              Products
             </Link>
             <Link href="/about" className="text-gray-700 hover:text-indigo-600">
               About

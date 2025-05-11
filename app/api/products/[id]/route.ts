@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import { User } from "../../../types/prisma"; // Import User type from prisma.ts
+import { authOptions } from "../../../lib/auth";
 
 const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = params;
+    // Access id directly from context
+    const id = context.params.id;
+
+    const url = new URL(request.url);
+    const includeCategory = url.searchParams.get("includeCategory") === "true";
 
     const product = await prisma.product.findUnique({
       where: { id },
+      include: {
+        category: includeCategory,
+      },
     });
 
     if (!product) {
@@ -22,8 +29,9 @@ export async function GET(
 
     return NextResponse.json(product);
   } catch (error) {
+    console.error("Failed to fetch product:", error);
     return NextResponse.json(
-      { error: "Error fetching product" },
+      { error: "Failed to fetch product" },
       { status: 500 }
     );
   }
@@ -31,39 +39,55 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession();
-    const user = session?.user as User | undefined; // Use the imported User type
+    // Get the authenticated session
+    const session = await getServerSession(authOptions);
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Check if user is authenticated
+    if (!session?.user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    const { id } = params;
+    // Check if user is an admin
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized: Admin access required" },
+        { status: 403 }
+      );
+    }
+
+    // Access id directly from context
+    const id = context.params.id;
     const data = await request.json();
 
-    // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { id },
-    });
-
-    if (!existingProduct) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    // Validate required fields
+    if (!data.name || data.price === undefined) {
+      return NextResponse.json(
+        { error: "Name and price are required" },
+        { status: 400 }
+      );
     }
 
     // Update product
-    const updatedProduct = await prisma.product.update({
+    const product = await prisma.product.update({
       where: { id },
-      data,
+      data: {
+        name: data.name,
+        description: data.description || "",
+        price: parseFloat(data.price),
+        image: data.image || "",
+        stock: data.stock !== undefined ? data.stock : 100,
+        categoryId: data.categoryId || null,
+      },
     });
 
-    return NextResponse.json(updatedProduct);
+    return NextResponse.json(product);
   } catch (error) {
-    console.error("Error updating product:", error);
+    console.error("Failed to update product:", error);
     return NextResponse.json(
-      { error: "Error updating product" },
+      { error: "Failed to update product" },
       { status: 500 }
     );
   }
@@ -71,58 +95,38 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    // Update how we fetch and validate the session
-    const session = await getServerSession();
+    // Get the authenticated session
+    const session = await getServerSession(authOptions);
 
-    // More thorough session validation
-    if (!session || !session.user) {
-      console.log("Unauthorized: No session or user");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Check if user is authenticated
+    if (!session?.user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
-    // Get full user from database to check role
-    const userEmail = session.user.email;
-    if (!userEmail) {
-      console.log("Unauthorized: No user email in session");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Check if user is an admin
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized: Admin access required" },
+        { status: 403 }
+      );
     }
 
-    const dbUser = await prisma.user.findUnique({
-      where: { email: userEmail },
-    });
-
-    if (!dbUser || dbUser.role !== "ADMIN") {
-      console.log("Unauthorized: User not admin", dbUser?.role);
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = params;
-
-    // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { id },
-    });
-
-    if (!existingProduct) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
-    }
+    // Access id directly from context
+    const id = context.params.id;
 
     // Delete product
     await prisma.product.delete({
       where: { id },
     });
 
-    return NextResponse.json(
-      { message: "Product deleted successfully" },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error("Failed to delete product:", error);
     return NextResponse.json(
-      { error: "Error deleting product" },
+      { error: "Failed to delete product" },
       { status: 500 }
     );
   }

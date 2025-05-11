@@ -30,7 +30,6 @@ async function getOrders(status?: string) {
           product: true,
         },
       },
-  
     },
   });
 
@@ -62,8 +61,6 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
-
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Manage Orders</h1>
@@ -170,10 +167,10 @@ export default async function AdminOrdersPage({
                 {orders.map((order) => {
                   // Calculate the total from order items
                   const orderTotal = order.items.reduce(
-                    (sum, item) => sum + (item.price * item.quantity), 
+                    (sum, item) => sum + item.price * item.quantity,
                     0
                   );
-                  
+
                   return (
                     <tr key={order.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -186,7 +183,9 @@ export default async function AdminOrdersPage({
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div>{new Date(order.createdAt).toLocaleDateString()}</div>
+                        <div>
+                          {new Date(order.createdAt).toLocaleDateString()}
+                        </div>
                         <div className="text-xs text-gray-400">
                           {new Date(order.createdAt).toLocaleTimeString()}
                         </div>
@@ -194,8 +193,15 @@ export default async function AdminOrdersPage({
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <div>{order.items.length} items</div>
                         <div className="text-xs text-gray-400">
-                          {order.items.map(item => item.product.name).join(", ").slice(0, 30)}
-                          {order.items.map(item => item.product.name).join(", ").length > 30 ? "..." : ""}
+                          {order.items
+                            .map((item) => item.product.name)
+                            .join(", ")
+                            .slice(0, 30)}
+                          {order.items
+                            .map((item) => item.product.name)
+                            .join(", ").length > 30
+                            ? "..."
+                            : ""}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
