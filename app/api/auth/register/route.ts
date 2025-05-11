@@ -22,7 +22,7 @@ export async function POST(request: Request) {
         .findUnique({
           where: { email },
         })
-        .catch((error) => {
+        .catch((error: Error) => {
           console.error("Database query error:", error);
           return null;
         });
