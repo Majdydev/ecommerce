@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 const prisma = new PrismaClient();
+
+// Simplified transaction type without using RejectPerOperation
+type TransactionPrismaClient = Omit<
+  PrismaClient,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+>;
 
 export async function POST(request: Request) {
   try {
@@ -63,47 +69,49 @@ export async function POST(request: Request) {
     }
 
     // Create order with transaction to ensure consistency
-    const order = await prisma.$transaction(async (tx) => {
-      // 1. Create the order
-      const newOrder = await tx.order.create({
-        data: {
-          userId: user.id,
-          total: data.total,
-          addressId: data.addressId || undefined, // Handle case when address is not provided
-          items: {
-            create: data.items.map(
-              (item: {
-                productId: number;
-                quantity: number;
-                price: number;
-              }) => ({
-                productId: item.productId,
-                quantity: item.quantity,
-                price: item.price,
-              })
-            ),
-          },
-        },
-        include: {
-          items: true,
-          shippingAddress: true,
-        },
-      });
-
-      // 2. Update product stock
-      for (const item of data.items) {
-        await tx.product.update({
-          where: { id: item.productId },
+    const order = await prisma.$transaction(
+      async (tx: TransactionPrismaClient) => {
+        // 1. Create the order
+        const newOrder = await tx.order.create({
           data: {
-            stock: {
-              decrement: item.quantity,
+            userId: user.id,
+            total: data.total,
+            addressId: data.addressId || undefined, // Handle case when address is not provided
+            items: {
+              create: data.items.map(
+                (item: {
+                  productId: string; // Change to string to match MongoDB ObjectId
+                  quantity: number;
+                  price: number;
+                }) => ({
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  price: item.price,
+                })
+              ),
             },
           },
+          include: {
+            items: true,
+            shippingAddress: true,
+          },
         });
-      }
 
-      return newOrder;
-    });
+        // 2. Update product stock
+        for (const item of data.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: {
+              stock: {
+                decrement: item.quantity,
+              },
+            },
+          });
+        }
+
+        return newOrder;
+      }
+    );
 
     return NextResponse.json(order, { status: 201 });
   } catch (error) {
