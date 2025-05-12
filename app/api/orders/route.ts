@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
-import prisma from "../../../lib/prisma"; // Import the prisma singleton instead of creating a new instance
+import prisma from "../../../lib/prisma"; // Import the prisma singleton
+
+// Define a transaction client type
+type TransactionPrismaClient = Omit<
+  typeof prisma,
+  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
+>;
 
 export async function POST(request: Request) {
   try {
@@ -59,9 +65,9 @@ export async function POST(request: Request) {
 
     // Transaction with proper typing
     const order = await prisma.$transaction(
-      async (tx: Prisma.TransactionClient) => {
+      async (tx: TransactionPrismaClient) => {
         // 1. Create order
-        const newOrder = await tx?.order?.create({
+        const newOrder = await tx.order.create({
           data: {
             userId: user.id,
             total: data.total,
@@ -110,4 +116,45 @@ export async function POST(request: Request) {
   }
 }
 
-// GET handler remains the same
+// Get all orders for the user
+export async function GET() {
+  try {
+    const session = await getServerSession();
+
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Check for admin role to determine if we should return all orders
+    const isAdmin = user.role === "ADMIN";
+
+    const orders = await prisma.order.findMany({
+      where: isAdmin ? {} : { userId: user.id },
+      orderBy: { createdAt: "desc" },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+        shippingAddress: true,
+      },
+    });
+
+    return NextResponse.json(orders);
+  } catch (error) {
+    console.error("Error fetching orders:", error);
+    return NextResponse.json(
+      { error: "Error fetching orders" },
+      { status: 500 }
+    );
+  }
+}
