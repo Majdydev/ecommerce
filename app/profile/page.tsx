@@ -405,16 +405,13 @@ export default function ProfilePage() {
             </div>
             <div className="mt-2 sm:mt-0">
               {profile?.role === "ADMIN" && (
-                <a
+                <Link
                   href="/admin"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    router.push('/admin');
-                  }}
+                  prefetch={false} // Prevent prefetching to avoid potential issues
                   className="bg-white text-indigo-600 px-4 py-2 text-sm rounded-md hover:bg-indigo-50 inline-block"
                 >
                   Admin Dashboard
-                </a>
+                </Link>
               )}
             </div>
           </div>
@@ -1051,10 +1048,7 @@ export default function ProfilePage() {
                       onClick={() => initAddressForm()}
                       className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
                     >
-                      <Plus
-                        size={14}
-                        className="sm:size-[16px] mr-1 sm:mr-2"
-                      />{" "}
+                      <Plus size={14} className="sm:size-[16px] mr-1 sm:mr-2" />{" "}
                       Add an Address
                     </button>
                   </div>
@@ -1100,7 +1094,10 @@ export default function ProfilePage() {
                               onClick={() => initAddressForm(address)}
                               className="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm flex items-center"
                             >
-                              <Edit2 size={12} className="sm:size-[14px] mr-1" />{" "}
+                              <Edit2
+                                size={12}
+                                className="sm:size-[14px] mr-1"
+                              />{" "}
                               Edit
                             </button>
                             <button
