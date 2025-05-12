@@ -26,6 +26,7 @@ model Category {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   image       String?
+  slug        String    @unique
   products    Product[] // Relation to products
   parentId    String?   @db.ObjectId
   parent      Category? @relation("SubCategories", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
