@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
-
-const prisma = new PrismaClient();
+import prisma from "../../../lib/prisma"; // Import the prisma singleton
 
 // Define our own query options type instead of using Prisma.ProductFindManyArgs
 type ProductQueryOptions = {

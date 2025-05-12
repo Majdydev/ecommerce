@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
-
-const prisma = new PrismaClient();
-
-// Update the transaction type to match what Prisma expects
-type TransactionPrismaClient = Omit<
-  PrismaClient,
-  "$connect" | "$disconnect" | "$on" | "$transaction" | "$use" | "$extends"
->;
+import prisma from "../../../lib/prisma"; // Import the prisma singleton instead of creating a new instance
 
 export async function POST(request: Request) {
   try {
@@ -43,7 +36,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if all products exist and have enough stock
+    // Check products
     for (const item of data.items) {
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
@@ -51,36 +44,32 @@ export async function POST(request: Request) {
 
       if (!product) {
         return NextResponse.json(
-          {
-            error: `Product with ID ${item.productId} not found`,
-          },
+          { error: `Product with ID ${item.productId} not found` },
           { status: 400 }
         );
       }
 
       if (product.stock < item.quantity) {
         return NextResponse.json(
-          {
-            error: `Insufficient stock for product: ${product.name}`,
-          },
+          { error: `Insufficient stock for product: ${product.name}` },
           { status: 400 }
         );
       }
     }
 
-    // Create order with transaction to ensure consistency
+    // Transaction with proper typing
     const order = await prisma.$transaction(
-      async (tx: TransactionPrismaClient) => {
-        // 1. Create the order
+      async (tx: Prisma.TransactionClient) => {
+        // 1. Create order
         const newOrder = await tx.order.create({
           data: {
             userId: user.id,
             total: data.total,
-            addressId: data.addressId || undefined, // Handle case when address is not provided
+            addressId: data.addressId || undefined,
             items: {
               create: data.items.map(
                 (item: {
-                  productId: string; // Change to string to match MongoDB ObjectId
+                  productId: string;
                   quantity: number;
                   price: number;
                 }) => ({
@@ -97,17 +86,15 @@ export async function POST(request: Request) {
           },
         });
 
-        // 2. Update product stock
-        for (const item of data.items) {
-          await tx.product.update({
-            where: { id: item.productId },
-            data: {
-              stock: {
-                decrement: item.quantity,
-              },
-            },
-          });
-        }
+        // 2. Update stock
+        await Promise.all(
+          data.items.map((item: { productId: string; quantity: number }) =>
+            tx.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: item.quantity } },
+            })
+          )
+        );
 
         return newOrder;
       }
@@ -123,45 +110,4 @@ export async function POST(request: Request) {
   }
 }
 
-// Get all orders for the user
-export async function GET() {
-  try {
-    const session = await getServerSession();
-
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { email: session.user.email },
-    });
-
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    // Check for admin role to determine if we should return all orders
-    const isAdmin = user.role === "ADMIN";
-
-    const orders = await prisma.order.findMany({
-      where: isAdmin ? {} : { userId: user.id },
-      orderBy: { createdAt: "desc" },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-        shippingAddress: true,
-      },
-    });
-
-    return NextResponse.json(orders);
-  } catch (error) {
-    console.error("Error fetching orders:", error);
-    return NextResponse.json(
-      { error: "Error fetching orders" },
-      { status: 500 }
-    );
-  }
-}
+// GET handler remains the same

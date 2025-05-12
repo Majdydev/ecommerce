@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { hash } from "bcryptjs";
-
-const prisma = new PrismaClient();
+import prisma from "../../../../lib/prisma"; // Import the prisma singleton
 
 // Get a specific user
 export async function GET(

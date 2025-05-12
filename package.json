@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prisma:generate": "prisma generate && pnpm prisma:link",
+    "prisma:link": "ln -sf ../../.prisma ../node_modules/.pnpm/@prisma+client@6.2.1_prisma@6.2.1/node_modules/.prisma",
+    "postinstall": "pnpm prisma:generate"
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^1.0.7",

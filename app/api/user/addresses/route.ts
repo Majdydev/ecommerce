@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { Address } from "../../../types/prisma";
-
-const prisma = new PrismaClient();
+import prisma from "../../../../lib/prisma"; // Import the prisma singleton
 
 // GET user's addresses
 export async function GET() {
