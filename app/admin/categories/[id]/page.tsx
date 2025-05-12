@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Category } from "../../../types/prisma";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 // Helper function to determine if one category is a descendant of another
 const isDescendantOf = (
@@ -118,94 +120,105 @@ export default function EditCategoryPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto p-4">
-        <div className="text-center py-8">Loading...</div>
+      <div className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="text-center py-8">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent align-[-0.125em]"></div>
+          <p className="mt-4 text-gray-600">Loading category data...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Edit Category</h1>
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-6 rounded-lg shadow-md space-y-4"
-      >
-        <div>
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="name"
-          >
-            Category Name
-          </label>
-          <input
-            id="name"
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
+    <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h1 className="text-2xl sm:text-3xl font-bold">Edit Category</h1>
+        <Link
+          href="/admin/categories"
+          className="inline-flex items-center text-indigo-600 hover:text-indigo-500"
+        >
+          <ArrowLeft size={16} className="mr-1.5" />
+          Back to Categories
+        </Link>
+      </div>
 
-        <div>
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="image"
-          >
-            Image URL (optional)
-          </label>
-          <input
-            id="image"
-            type="url"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
+      <div className="bg-white shadow-md rounded-lg max-w-2xl mx-auto p-4 sm:p-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="name"
+            >
+              Category Name
+            </label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
 
-        <div>
-          <label
-            className="block text-sm font-medium text-gray-700 mb-1"
-            htmlFor="parentId"
-          >
-            Parent Category (optional)
-          </label>
-          <select
-            id="parentId"
-            name="parentId"
-            value={formData.parentId}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-          >
-            <option value="">No Parent (Top Level)</option>
-            {categories.map((category) => (
-              <option key={category?.id} value={category?.id}>
-                {category?.name}
-              </option>
-            ))}
-          </select>
-        </div>
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="image"
+            >
+              Image URL (optional)
+            </label>
+            <input
+              id="image"
+              type="url"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <button
-            type="button"
-            onClick={() => router.push("/admin/categories")}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-          >
-            {isSubmitting ? "Saving..." : "Save Changes"}
-          </button>
-        </div>
-      </form>
+          <div>
+            <label
+              className="block text-sm font-medium text-gray-700 mb-1"
+              htmlFor="parentId"
+            >
+              Parent Category (optional)
+            </label>
+            <select
+              id="parentId"
+              name="parentId"
+              value={formData.parentId}
+              onChange={handleChange}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">No Parent (Top Level)</option>
+              {categories.map((category) => (
+                <option key={category?.id} value={category?.id}>
+                  {category?.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-4">
+            <Link
+              href="/admin/categories"
+              className="bg-gray-200 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-center text-sm font-medium text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Cancel
+            </Link>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="bg-indigo-600 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -67,34 +67,37 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Categories Management</h1>
+    <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3">
+        <h1 className="text-2xl sm:text-3xl font-bold">Categories Management</h1>
         <Link
           href="/admin/categories/new"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center"
+          className="bg-indigo-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center sm:justify-start text-sm"
         >
-          <Plus size={18} className="mr-1" /> Add Category
+          <Plus size={16} className="mr-1.5" /> Add Category
         </Link>
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Loading categories...</div>
+        <div className="text-center py-8">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="mt-4 text-gray-600">Loading categories...</p>
+        </div>
       ) : (
         <div className="overflow-x-auto bg-white shadow rounded-lg">
           <table className="min-w-full table-auto">
             <thead>
               <tr className="bg-gray-100 border-b">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Parent Category
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Parent
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Subcategories
+                <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Subs
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -104,7 +107,7 @@ export default function AdminCategoriesPage() {
                 <tr>
                   <td
                     colSpan={4}
-                    className="px-6 py-4 text-center text-gray-500"
+                    className="px-3 sm:px-6 py-4 text-center text-gray-500 text-sm"
                   >
                     No categories found. Add one to get started.
                   </td>
@@ -112,31 +115,37 @@ export default function AdminCategoriesPage() {
               ) : (
                 categories.map((category) => (
                   <tr key={category?.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {category?.name}
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm">
+                      <div className="max-w-[100px] sm:max-w-none truncate">
+                        {category?.name}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {getParentName(category?.parentId as string) || "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">
                       {categories.filter((c) => c?.parentId === category?.id)
                         .length || "-"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2 text-sm flex items-center"
-                        onClick={() =>
-                          router.push(`/admin/categories/${category?.id}`)
-                        }
-                      >
-                        <Edit size={14} className="mr-1" /> Edit
-                      </button>
-                      <button
-                        className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm flex items-center"
-                        onClick={() => handleDelete(category?.id as string)}
-                      >
-                        <Trash2 size={14} className="mr-1" /> Delete
-                      </button>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
+                      <div className="flex flex-wrap justify-end gap-2">
+                        <button
+                          className="inline-flex items-center bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 py-1 rounded-md text-xs"
+                          onClick={() =>
+                            router.push(`/admin/categories/${category?.id}`)
+                          }
+                        >
+                          <Edit size={14} className="sm:mr-1" /> 
+                          <span className="hidden sm:inline">Edit</span>
+                        </button>
+                        <button
+                          className="inline-flex items-center bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 rounded-md text-xs"
+                          onClick={() => handleDelete(category?.id as string)}
+                        >
+                          <Trash2 size={14} className="sm:mr-1" /> 
+                          <span className="hidden sm:inline">Delete</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

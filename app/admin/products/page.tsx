@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product, Category } from "../../types/prisma";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash } from "lucide-react";
 
 type ProductWithCategory = Product & {
   category?: Category | null;
@@ -52,37 +52,40 @@ export default function AdminProductsPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Products Management</h1>
+    <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
+        <h1 className="text-2xl sm:text-3xl font-bold">Products Management</h1>
         <Link
           href="/admin/products/new"
-          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center"
+          className="bg-indigo-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center sm:justify-start text-sm"
         >
-          <Plus size={18} className="mr-1" /> Add Product
+          <Plus size={16} className="mr-1.5" /> Add Product
         </Link>
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Loading products...</div>
+        <div className="text-center py-8">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
+          <p className="mt-4 text-gray-600">Loading products...</p>
+        </div>
       ) : (
         <div className="overflow-x-auto bg-white shadow rounded-lg">
           <table className="min-w-full table-auto">
             <thead>
               <tr className="bg-gray-100 border-b">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Price
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="hidden sm:table-cell px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -92,7 +95,7 @@ export default function AdminProductsPage() {
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-6 py-4 text-center text-gray-500"
+                    className="px-4 sm:px-6 py-4 text-center text-gray-500"
                   >
                     No products found. Add one to get started.
                   </td>
@@ -102,35 +105,41 @@ export default function AdminProductsPage() {
                   (product) =>
                     product && (
                       <tr key={product.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {product.name}
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                          <div className="max-w-[150px] sm:max-w-xs truncate font-medium text-sm">
+                            {product.name}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="hidden sm:table-cell px-4 sm:px-6 py-3 sm:py-4 text-sm">
                           {product.category
                             ? product.category.name
                             : "Uncategorized"}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm">
                           ${product.price.toFixed(2)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="hidden sm:table-cell px-4 sm:px-6 py-3 sm:py-4 text-sm">
                           {product.stock}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <button
-                            className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded mr-2 text-sm"
-                            onClick={() =>
-                              router.push(`/admin/products/${product.id}`)
-                            }
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"
-                            onClick={() => handleDelete(product.id)}
-                          >
-                            Delete
-                          </button>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                          <div className="flex flex-wrap gap-2 text-sm">
+                            <button
+                              className="flex items-center bg-blue-500 hover:bg-blue-600 text-white px-2 sm:px-3 py-1 rounded text-xs"
+                              onClick={() =>
+                                router.push(`/admin/products/${product.id}`)
+                              }
+                            >
+                              <Edit size={14} className="mr-1" />
+                              Edit
+                            </button>
+                            <button
+                              className="flex items-center bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 rounded text-xs"
+                              onClick={() => handleDelete(product.id)}
+                            >
+                              <Trash size={14} className="mr-1" />
+                              Delete
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     )
