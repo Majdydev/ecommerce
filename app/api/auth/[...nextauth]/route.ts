@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import prisma from "../../../../lib/prisma"; // Import the prisma singleton
+import prisma from "../../../../lib/prisma"; // Use the singleton instance
 
 declare module "next-auth" {
   interface User {
@@ -17,7 +17,7 @@ declare module "next-auth" {
 }
 
 const handler = NextAuth({
-  adapter: PrismaAdapter(prisma), // Use the singleton prisma client
+  adapter: PrismaAdapter(prisma), // Use the singleton Prisma instance
   providers: [
     CredentialsProvider({
       name: "Credentials",
