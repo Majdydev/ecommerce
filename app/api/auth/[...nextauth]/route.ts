@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import prisma from "../../../../lib/prisma";
 import { JWT } from "next-auth/jwt";
-import { Session, AuthOptions } from "next-auth";
+import { Session } from "next-auth";
 
 // Extend NextAuth types
 declare module "next-auth" {
@@ -33,7 +33,8 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const authOptions: AuthOptions = {
+// Remove the export keyword
+const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
