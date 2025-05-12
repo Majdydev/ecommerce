@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     const order = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         // 1. Create order
-        const newOrder = await tx.order.create({
+        const newOrder = await tx?.order?.create({
           data: {
             userId: user.id,
             total: data.total,
