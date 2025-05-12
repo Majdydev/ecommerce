@@ -1,8 +1,9 @@
-import { OrderStatus } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import prisma from "../../../lib/prisma";
+import { OrderStatus } from "@prisma/client";
 
 // Define valid statuses as a constant to avoid repetition
 const VALID_STATUSES = [
@@ -12,123 +13,158 @@ const VALID_STATUSES = [
   "CANCELLED",
 ] as const;
 
-async function getOrders(statusParam?: string) {
-  // Create where clause conditionally
-  const where: { status?: OrderStatus } = {};
+// Define types for Order and related data
+type OrderItem = {
+  id: string;
+  productId: string;
+  quantity: number;
+  price: number;
+  product: {
+    name: string;
+  };
+};
 
-  // Check if status is a valid OrderStatus enum value
-  if (statusParam && VALID_STATUSES.includes(statusParam as OrderStatus)) {
-    where.status = statusParam as OrderStatus;
-  }
+type Order = {
+  id: string;
+  userId: string;
+  status: OrderStatus;
+  total: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  items: OrderItem[];
+};
 
-  try {
-    const orders = await prisma.order.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    });
+export default function AdminOrdersPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const status = searchParams.get("status");
 
-    return orders;
-  } catch (error) {
-    console.error("Failed to fetch orders:", error);
-    throw new Error("Failed to fetch orders");
-  }
-}
+  useEffect(() => {
+    const fetchOrders = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // Build the query URL with pagination and filtering
+        let url = `/api/admin/orders?page=${page}&limit=10`;
+        if (status && VALID_STATUSES.includes(status as OrderStatus)) {
+          url += `&status=${status}`;
+        }
 
-export default async function AdminOrdersPage({
-  searchParams,
-}: {
-  searchParams: { status?: string };
-}) {
-  const session = await getServerSession();
+        const res = await fetch(url);
 
-  if (!session) {
-    redirect("/auth/login");
-  }
+        if (!res.ok) {
+          throw new Error("Failed to fetch orders");
+        }
 
-  try {
-    // Get the full user from the database to check role
-    const user = await prisma.user.findUnique({
-      where: { email: session.user?.email as string },
-    });
+        const data = await res.json();
+        setOrders(data.orders);
+        setTotalPages(data.totalPages);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError("Failed to load orders. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!user || user.role !== "ADMIN") {
-      redirect("/auth/login");
+    fetchOrders();
+  }, [page, status]);
+
+  const handleStatusChange = (newStatus: string | null) => {
+    setPage(1); // Reset to first page when filter changes
+
+    // Update URL without full page reload
+    if (newStatus) {
+      router.push(`/admin/orders?status=${newStatus}`);
+    } else {
+      router.push("/admin/orders");
     }
+  };
 
-    // Get status from search params
-    const { status } = searchParams;
-
-    // Pass status to getOrders which will filter orders by status
-    const orders = await getOrders(status);
-
+  if (error) {
     return (
-      <div className="min-h-screen flex flex-col">
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Manage Orders</h1>
-            <Link
-              href="/admin"
-              className="text-indigo-600 hover:text-indigo-500"
-            >
-              ← Back to Dashboard
-            </Link>
-          </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
+          <p className="text-gray-600">{error}</p>
+          <Link
+            href="/admin"
+            className="mt-4 inline-block text-indigo-600 hover:text-indigo-500"
+          >
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-          <div className="mb-6">
-            <div className="flex flex-wrap gap-2">
-              <Link
-                href="/admin/orders"
+  return (
+    <div className="min-h-screen flex flex-col">
+      <main className="flex-grow container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Manage Orders</h1>
+          <Link href="/admin" className="text-indigo-600 hover:text-indigo-500">
+            ← Back to Dashboard
+          </Link>
+        </div>
+
+        <div className="mb-6">
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => handleStatusChange(null)}
+              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                !status
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+              }`}
+            >
+              All Orders
+            </button>
+            {VALID_STATUSES.map((statusValue) => (
+              <button
+                key={statusValue}
+                onClick={() => handleStatusChange(statusValue)}
                 className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  !status
+                  status === statusValue
                     ? "bg-indigo-600 text-white"
                     : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                 }`}
               >
-                All Orders
-              </Link>
-              {VALID_STATUSES.map((statusValue) => (
-                <Link
-                  key={statusValue}
-                  href={`/admin/orders?status=${statusValue}`}
-                  className={`px-3 py-2 rounded-md text-sm font-medium ${
-                    status === statusValue
-                      ? "bg-indigo-600 text-white"
-                      : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                  }`}
-                >
-                  {statusValue.charAt(0) + statusValue.slice(1).toLowerCase()}
-                </Link>
-              ))}
-            </div>
+                {statusValue.charAt(0) + statusValue.slice(1).toLowerCase()}
+              </button>
+            ))}
           </div>
+        </div>
 
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            {orders.length === 0 ? (
-              <div className="text-center py-12">
-                <h2 className="text-xl font-medium text-gray-600 mb-4">
-                  No orders found
-                </h2>
-                <p className="text-gray-500">
-                  {status
-                    ? `There are no orders with status: ${status}`
-                    : "There are no orders yet"}
-                </p>
-              </div>
-            ) : (
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-500 border-r-transparent"></div>
+              <p className="mt-4 text-gray-600">Loading orders...</p>
+            </div>
+          ) : orders.length === 0 ? (
+            <div className="text-center py-12">
+              <h2 className="text-xl font-medium text-gray-600 mb-4">
+                No orders found
+              </h2>
+              <p className="text-gray-500">
+                {status
+                  ? `There are no orders with status: ${status}`
+                  : "There are no orders yet"}
+              </p>
+            </div>
+          ) : (
+            <>
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -226,28 +262,111 @@ export default async function AdminOrdersPage({
                   })}
                 </tbody>
               </table>
-            )}
-          </div>
-        </main>
-      </div>
-    );
-  } catch (error) {
-    console.error("Error in AdminOrdersPage:", error);
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Error</h1>
-          <p className="text-gray-600">
-            Failed to load orders. Please try again later.
-          </p>
-          <Link
-            href="/admin"
-            className="mt-4 inline-block text-indigo-600 hover:text-indigo-500"
-          >
-            Back to Dashboard
-          </Link>
+
+              {/* Pagination Controls */}
+              <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
+                <div className="flex-1 flex justify-between sm:hidden">
+                  <button
+                    onClick={() => setPage(page - 1)}
+                    disabled={page <= 1}
+                    className={`${
+                      page <= 1
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    } relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md`}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setPage(page + 1)}
+                    disabled={page >= totalPages}
+                    className={`${
+                      page >= totalPages
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    } ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md`}
+                  >
+                    Next
+                  </button>
+                </div>
+                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Showing page <span className="font-medium">{page}</span>{" "}
+                      of <span className="font-medium">{totalPages}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <nav
+                      className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                      aria-label="Pagination"
+                    >
+                      <button
+                        onClick={() => setPage(page - 1)}
+                        disabled={page <= 1}
+                        className={`${
+                          page <= 1
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-500 hover:bg-gray-50"
+                        } relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 text-sm font-medium`}
+                      >
+                        Previous
+                      </button>
+
+                      {/* Page number buttons */}
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter(
+                          (pageNum) =>
+                            pageNum === 1 ||
+                            pageNum === totalPages ||
+                            (pageNum >= page - 1 && pageNum <= page + 1)
+                        )
+                        .map((pageNum, i, filteredPages) => {
+                          // Add ellipsis if there are gaps
+                          const prevPage = filteredPages[i - 1];
+                          const showEllipsisBefore =
+                            i > 0 && prevPage !== pageNum - 1;
+
+                          return (
+                            <div key={pageNum}>
+                              {showEllipsisBefore && (
+                                <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                  ...
+                                </span>
+                              )}
+                              <button
+                                onClick={() => setPage(pageNum)}
+                                className={`${
+                                  page === pageNum
+                                    ? "bg-indigo-50 border-indigo-500 text-indigo-600"
+                                    : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                                } relative inline-flex items-center px-4 py-2 border text-sm font-medium`}
+                              >
+                                {pageNum}
+                              </button>
+                            </div>
+                          );
+                        })}
+
+                      <button
+                        onClick={() => setPage(page + 1)}
+                        disabled={page >= totalPages}
+                        className={`${
+                          page >= totalPages
+                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                            : "bg-white text-gray-500 hover:bg-gray-50"
+                        } relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 text-sm font-medium`}
+                      >
+                        Next
+                      </button>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    );
-  }
+      </main>
+    </div>
+  );
 }

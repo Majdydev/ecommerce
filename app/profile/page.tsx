@@ -388,24 +388,26 @@ export default function ProfilePage() {
 
   return (
     <ClientLayout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <div className="bg-white shadow rounded-lg overflow-hidden">
           {/* Profile Header */}
-          <div className="bg-indigo-600 py-6 px-8 flex items-center justify-between">
-            <div className="flex items-center">
+          <div className="bg-indigo-600 py-4 sm:py-6 px-4 sm:px-8 flex flex-col sm:flex-row items-center sm:justify-between gap-4 sm:gap-0">
+            <div className="flex flex-col sm:flex-row items-center text-center sm:text-left">
               <div className="h-16 w-16 bg-white rounded-full flex items-center justify-center text-indigo-600 text-2xl font-bold">
                 {profile?.name?.charAt(0)?.toUpperCase() || "U"}
               </div>
-              <div className="ml-4 text-white">
+              <div className="mt-2 sm:mt-0 sm:ml-4 text-white">
                 <h1 className="text-xl font-bold">{profile?.name || "User"}</h1>
-                <p className="text-indigo-100">{profile?.email}</p>
+                <p className="text-indigo-100 text-sm sm:text-base">
+                  {profile?.email}
+                </p>
               </div>
             </div>
-            <div>
+            <div className="mt-2 sm:mt-0">
               {profile?.role === "ADMIN" && (
                 <Link
                   href="/admin"
-                  className="bg-white text-indigo-600 px-4 py-2 rounded-md hover:bg-indigo-50"
+                  className="bg-white text-indigo-600 px-4 py-2 text-sm rounded-md hover:bg-indigo-50"
                 >
                   Admin Dashboard
                 </Link>
@@ -414,28 +416,28 @@ export default function ProfilePage() {
           </div>
 
           {/* Tabs Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="flex -mb-px">
+          <div className="border-b border-gray-200 overflow-x-auto">
+            <nav className="flex -mb-px min-w-max">
               <button
                 onClick={() => setActiveTab("info")}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center ${
+                className={`px-3 sm:px-6 py-3 border-b-2 font-medium text-xs sm:text-sm flex items-center ${
                   activeTab === "info"
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                <User size={16} className="mr-2" />
+                <User size={14} className="sm:size-[16px] mr-1 sm:mr-2" />
                 Account Info
               </button>
               <button
                 onClick={() => setActiveTab("orders")}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center ${
+                className={`px-3 sm:px-6 py-3 border-b-2 font-medium text-xs sm:text-sm flex items-center ${
                   activeTab === "orders"
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                <Package size={16} className="mr-2" />
+                <Package size={14} className="sm:size-[16px] mr-1 sm:mr-2" />
                 Orders
                 <span className="ml-2 bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 text-xs">
                   {orders.length}
@@ -443,13 +445,13 @@ export default function ProfilePage() {
               </button>
               <button
                 onClick={() => setActiveTab("addresses")}
-                className={`px-6 py-3 border-b-2 font-medium text-sm flex items-center ${
+                className={`px-3 sm:px-6 py-3 border-b-2 font-medium text-xs sm:text-sm flex items-center ${
                   activeTab === "addresses"
                     ? "border-indigo-500 text-indigo-600"
                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                 }`}
               >
-                <MapPin size={16} className="mr-2" />
+                <MapPin size={14} className="sm:size-[16px] mr-1 sm:mr-2" />
                 Addresses
                 <span className="ml-2 bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 text-xs">
                   {addresses.length}
@@ -490,18 +492,20 @@ export default function ProfilePage() {
           )}
 
           {/* Tab Content */}
-          <div className="p-6">
+          <div className="p-4 sm:p-6">
             {/* Account Information Tab */}
             {activeTab === "info" && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">Account Information</h2>
+                <div className="flex items-center justify-between mb-4 sm:mb-6">
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Account Information
+                  </h2>
                   {!isEditingProfile && (
                     <button
                       onClick={() => setIsEditingProfile(true)}
-                      className="flex items-center text-indigo-600 hover:text-indigo-800"
+                      className="flex items-center text-indigo-600 hover:text-indigo-800 text-sm sm:text-base"
                     >
-                      <Edit2 size={16} className="mr-1" /> Edit
+                      <Edit2 size={14} className="sm:size-[16px] mr-1" /> Edit
                     </button>
                   )}
                 </div>
@@ -510,13 +514,13 @@ export default function ProfilePage() {
                   <form onSubmit={handleProfileUpdate}>
                     <div className="mb-4">
                       <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs sm:text-sm font-bold mb-1 sm:mb-2"
                         htmlFor="name"
                       >
                         Name
                       </label>
                       <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
                         id="name"
                         type="text"
                         placeholder="Your Name"
@@ -538,13 +542,13 @@ export default function ProfilePage() {
 
                     <div className="mb-6">
                       <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs sm:text-sm font-bold mb-1 sm:mb-2"
                         htmlFor="email"
                       >
                         Email
                       </label>
                       <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
                         id="email"
                         type="email"
                         placeholder="Your Email"
@@ -568,53 +572,55 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => setIsEditingProfile(false)}
-                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2"
+                        className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-1 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm rounded focus:outline-none focus:shadow-outline mr-2"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm rounded focus:outline-none focus:shadow-outline"
                       >
                         Save Changes
                       </button>
                     </div>
                   </form>
                 ) : (
-                  <div className="bg-gray-50 p-4 rounded-md">
-                    <div className="mb-4">
-                      <span className="block text-sm font-medium text-gray-500">
+                  <div className="bg-gray-50 p-3 sm:p-4 rounded-md">
+                    <div className="mb-3 sm:mb-4">
+                      <span className="block text-xs sm:text-sm font-medium text-gray-500">
                         Name
                       </span>
-                      <span className="block mt-1 text-gray-900">
+                      <span className="block mt-1 text-sm sm:text-base text-gray-900">
                         {profile?.name}
                       </span>
                     </div>
                     <div>
-                      <span className="block text-sm font-medium text-gray-500">
+                      <span className="block text-xs sm:text-sm font-medium text-gray-500">
                         Email
                       </span>
-                      <span className="block mt-1 text-gray-900">
+                      <span className="block mt-1 text-sm sm:text-base text-gray-900">
                         {profile?.email}
                       </span>
                     </div>
                   </div>
                 )}
 
-                <hr className="my-8" />
+                <hr className="my-6 sm:my-8" />
 
                 <div>
-                  <h3 className="text-lg font-medium mb-4">Change Password</h3>
+                  <h3 className="text-base sm:text-lg font-medium mb-4">
+                    Change Password
+                  </h3>
                   <form onSubmit={handlePasswordUpdate}>
                     <div className="mb-4">
                       <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs sm:text-sm font-bold mb-1 sm:mb-2"
                         htmlFor="currentPassword"
                       >
                         Current Password
                       </label>
                       <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
                         id="currentPassword"
                         type="password"
                         placeholder="Current Password"
@@ -636,13 +642,13 @@ export default function ProfilePage() {
 
                     <div className="mb-4">
                       <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs sm:text-sm font-bold mb-1 sm:mb-2"
                         htmlFor="newPassword"
                       >
                         New Password
                       </label>
                       <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
                         id="newPassword"
                         type="password"
                         placeholder="New Password"
@@ -664,13 +670,13 @@ export default function ProfilePage() {
 
                     <div className="mb-6">
                       <label
-                        className="block text-gray-700 text-sm font-bold mb-2"
+                        className="block text-gray-700 text-xs sm:text-sm font-bold mb-1 sm:mb-2"
                         htmlFor="confirmPassword"
                       >
                         Confirm New Password
                       </label>
                       <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-sm leading-tight focus:outline-none focus:shadow-outline"
                         id="confirmPassword"
                         type="password"
                         placeholder="Confirm New Password"
@@ -693,7 +699,7 @@ export default function ProfilePage() {
                     <div className="flex items-center justify-end">
                       <button
                         type="submit"
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 sm:py-2 px-3 sm:px-4 text-xs sm:text-sm rounded focus:outline-none focus:shadow-outline"
                       >
                         Update Password
                       </button>
@@ -706,34 +712,39 @@ export default function ProfilePage() {
             {/* Orders Tab */}
             {activeTab === "orders" && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">Your Orders</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Your Orders
+                  </h2>
                   <Link
                     href="/orders"
-                    className="text-indigo-600 hover:text-indigo-800"
+                    className="text-indigo-600 hover:text-indigo-800 text-sm"
                   >
                     View All Orders
                   </Link>
                 </div>
 
                 {orders.length === 0 ? (
-                  <div className="bg-gray-50 p-8 text-center rounded-lg border border-gray-200">
-                    <Package size={48} className="mx-auto text-gray-400 mb-3" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">
+                  <div className="bg-gray-50 p-6 sm:p-8 text-center rounded-lg border border-gray-200">
+                    <Package
+                      size={40}
+                      className="sm:size-[48px] mx-auto text-gray-400 mb-2 sm:mb-3"
+                    />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
                       No orders yet
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-gray-500 mb-3 sm:mb-4 text-sm">
                       When you place orders, they will appear here
                     </p>
                     <Link
                       href="/products"
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                      className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
                     >
                       Browse Products
                     </Link>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-4 sm:space-y-6">
                     {orders.slice(0, 5).map((order) => (
                       <div
                         key={order.id}
@@ -741,7 +752,7 @@ export default function ProfilePage() {
                       >
                         <div className="bg-gray-50 px-4 py-3 flex justify-between items-center border-b border-gray-200">
                           <div>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-xs sm:text-sm text-gray-500">
                               Order placed on{" "}
                               {new Date(order.createdAt).toLocaleDateString()}
                             </p>
@@ -799,36 +810,39 @@ export default function ProfilePage() {
             {/* Addresses Tab */}
             {activeTab === "addresses" && (
               <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold">Your Addresses</h2>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
+                  <h2 className="text-lg sm:text-xl font-semibold">
+                    Your Addresses
+                  </h2>
                   {!isAddingAddress && !isEditingAddress && (
                     <button
                       onClick={() => initAddressForm()}
-                      className="flex items-center text-indigo-600 hover:text-indigo-800"
+                      className="flex items-center text-indigo-600 hover:text-indigo-800 text-sm"
                     >
-                      <Plus size={16} className="mr-1" /> Add New Address
+                      <Plus size={14} className="sm:size-[16px] mr-1" /> Add New
+                      Address
                     </button>
                   )}
                 </div>
 
                 {(isAddingAddress || isEditingAddress) && (
-                  <div className="bg-gray-50 p-6 rounded-lg mb-6 border border-gray-200">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-medium">
+                  <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-4 sm:mb-6 border border-gray-200">
+                    <div className="flex justify-between items-center mb-3 sm:mb-4">
+                      <h3 className="text-base sm:text-lg font-medium">
                         {isAddingAddress ? "Add New Address" : "Edit Address"}
                       </h3>
                       <button
                         onClick={cancelEditingAddress}
                         className="text-gray-400 hover:text-gray-600"
                       >
-                        <X size={20} />
+                        <X size={18} className="sm:size-[20px]" />
                       </button>
                     </div>
 
                     <form onSubmit={handleAddressSubmit}>
-                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                      <div className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2">
                         <div className="col-span-2">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             Address Name
                           </label>
                           <input
@@ -837,7 +851,7 @@ export default function ProfilePage() {
                             value={addressForm.name}
                             onChange={handleAddressFormChange}
                             placeholder="Home, Work, etc."
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                             required
                           />
                           {formErrors.name && (
@@ -848,7 +862,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="col-span-2">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             Street Address
                           </label>
                           <input
@@ -856,7 +870,7 @@ export default function ProfilePage() {
                             name="streetLine1"
                             value={addressForm.streetLine1}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                             required
                           />
                           {formErrors.streetLine1 && (
@@ -867,7 +881,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="col-span-2">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             Apartment, Suite, etc. (optional)
                           </label>
                           <input
@@ -875,12 +889,12 @@ export default function ProfilePage() {
                             name="streetLine2"
                             value={addressForm.streetLine2 || ""}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             City
                           </label>
                           <input
@@ -888,7 +902,7 @@ export default function ProfilePage() {
                             name="city"
                             value={addressForm.city}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                             required
                           />
                           {formErrors.city && (
@@ -899,7 +913,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             State / Province
                           </label>
                           <input
@@ -907,7 +921,7 @@ export default function ProfilePage() {
                             name="state"
                             value={addressForm.state}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                             required
                           />
                           {formErrors.state && (
@@ -918,7 +932,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             Postal / ZIP Code
                           </label>
                           <input
@@ -926,7 +940,7 @@ export default function ProfilePage() {
                             name="postalCode"
                             value={addressForm.postalCode}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                             required
                           />
                           {formErrors.postalCode && (
@@ -937,7 +951,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             Country
                           </label>
                           <input
@@ -945,7 +959,7 @@ export default function ProfilePage() {
                             name="country"
                             value={addressForm.country}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                             required
                           />
                           {formErrors.country && (
@@ -956,7 +970,7 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="col-span-2">
-                          <label className="block text-sm font-medium text-gray-700">
+                          <label className="block text-xs sm:text-sm font-medium text-gray-700">
                             Phone Number (optional)
                           </label>
                           <input
@@ -964,7 +978,7 @@ export default function ProfilePage() {
                             name="phoneNumber"
                             value={addressForm.phoneNumber || ""}
                             onChange={handleAddressFormChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm"
                           />
                         </div>
 
@@ -985,7 +999,7 @@ export default function ProfilePage() {
                                 className="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
                               />
                             </div>
-                            <div className="ml-3 text-sm">
+                            <div className="ml-3 text-xs sm:text-sm">
                               <label
                                 htmlFor="isDefault"
                                 className="font-medium text-gray-700"
@@ -997,19 +1011,19 @@ export default function ProfilePage() {
                         </div>
                       </div>
 
-                      <div className="mt-6 flex justify-end space-x-3">
+                      <div className="mt-4 sm:mt-6 flex justify-end space-x-3">
                         <button
                           type="button"
                           onClick={cancelEditingAddress}
-                          className="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          className="bg-white py-1.5 sm:py-2 px-3 sm:px-4 border border-gray-300 rounded-md shadow-sm text-xs sm:text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
-                          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                          className="inline-flex justify-center py-1.5 sm:py-2 px-3 sm:px-4 border border-transparent shadow-sm text-xs sm:text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                         >
-                          <Save className="h-4 w-4 mr-1" />
+                          <Save className="h-3 sm:h-4 w-3 sm:w-4 mr-1" />
                           {isAddingAddress ? "Add Address" : "Save Changes"}
                         </button>
                       </div>
@@ -1018,23 +1032,30 @@ export default function ProfilePage() {
                 )}
 
                 {addresses.length === 0 && !isAddingAddress ? (
-                  <div className="bg-gray-50 p-8 text-center rounded-lg border border-gray-200">
-                    <MapPin size={48} className="mx-auto text-gray-400 mb-3" />
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">
+                  <div className="bg-gray-50 p-6 sm:p-8 text-center rounded-lg border border-gray-200">
+                    <MapPin
+                      size={40}
+                      className="sm:size-[48px] mx-auto text-gray-400 mb-2 sm:mb-3"
+                    />
+                    <h3 className="text-base sm:text-lg font-medium text-gray-900 mb-1">
                       No addresses saved
                     </h3>
-                    <p className="text-gray-500 mb-4">
+                    <p className="text-gray-500 mb-3 sm:mb-4 text-sm">
                       Add an address to make checkout faster
                     </p>
                     <button
                       onClick={() => initAddressForm()}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                      className="inline-flex items-center px-3 sm:px-4 py-1.5 sm:py-2 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
                     >
-                      <Plus size={16} className="mr-2" /> Add an Address
+                      <Plus
+                        size={14}
+                        className="sm:size-[16px] mr-1 sm:mr-2"
+                      />{" "}
+                      Add an Address
                     </button>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                     {addresses.map((address) => {
                       // Skip null addresses
                       if (!address) return null;
@@ -1056,7 +1077,7 @@ export default function ProfilePage() {
                           <div className="mb-2">
                             <h3 className="font-medium">{address.name}</h3>
                           </div>
-                          <div className="text-sm text-gray-500 mb-4">
+                          <div className="text-xs sm:text-sm text-gray-500 mb-4">
                             <p>{address.streetLine1}</p>
                             {address.streetLine2 && (
                               <p>{address.streetLine2}</p>
@@ -1073,15 +1094,20 @@ export default function ProfilePage() {
                           <div className="flex space-x-2 mt-4">
                             <button
                               onClick={() => initAddressForm(address)}
-                              className="text-indigo-600 hover:text-indigo-900 text-sm flex items-center"
+                              className="text-indigo-600 hover:text-indigo-900 text-xs sm:text-sm flex items-center"
                             >
-                              <Edit2 size={12} className="mr-1" /> Edit
+                              <Edit2 size={12} className="sm:size-[14px] mr-1" />{" "}
+                              Edit
                             </button>
                             <button
                               onClick={() => handleDeleteAddress(address.id)}
-                              className="text-red-600 hover:text-red-900 text-sm flex items-center"
+                              className="text-red-600 hover:text-red-900 text-xs sm:text-sm flex items-center"
                             >
-                              <Trash2 size={12} className="mr-1" /> Delete
+                              <Trash2
+                                size={12}
+                                className="sm:size-[14px] mr-1"
+                              />{" "}
+                              Delete
                             </button>
                           </div>
                         </div>

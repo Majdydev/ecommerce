@@ -162,23 +162,25 @@ export default function CartPageContent() {
 
   if (items.length === 0) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
-        <p className="mb-8 text-gray-600">
+      <div className="text-center py-8 sm:py-12 px-4">
+        <h2 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
+          Your cart is empty
+        </h2>
+        <p className="mb-6 sm:mb-8 text-gray-600 text-sm sm:text-base">
           Looks like you haven&apos;t added anything to your cart yet.
         </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
           <Link
             href="/products"
-            className="inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition"
+            className="inline-block bg-indigo-600 text-white px-4 sm:px-6 py-2 text-sm sm:text-base rounded-md hover:bg-indigo-700 transition"
           >
             Continue Shopping
           </Link>
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition"
+            className="flex items-center justify-center gap-2 bg-gray-600 text-white px-4 sm:px-6 py-2 text-sm sm:text-base rounded-md hover:bg-gray-700 transition mt-3 sm:mt-0"
           >
-            <Home size={18} /> Go to Homepage
+            <Home size={16} className="sm:size-[18px]" /> Go to Homepage
           </Link>
         </div>
       </div>
@@ -186,21 +188,85 @@ export default function CartPageContent() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Your Cart</h1>
+    <div className="max-w-6xl mx-auto px-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 gap-2 sm:gap-0">
+        <h1 className="text-2xl sm:text-3xl font-bold">Your Cart</h1>
         <Link
           href="/"
           className="flex items-center gap-2 text-gray-600 hover:text-indigo-600 transition"
         >
-          <Home size={18} /> Back to Home
+          <Home size={16} className="sm:size-[18px]" /> Back to Home
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="lg:col-span-2 order-2 lg:order-1">
           <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
+            {/* Mobile view - card format */}
+            <div className="lg:hidden">
+              {items.map((item) => (
+                <div key={item.id} className="border-b last:border-b-0 p-4">
+                  <div className="flex gap-3">
+                    <div className="h-20 w-20 relative flex-shrink-0">
+                      <Image
+                        src={item.image || "/placeholder.jpg"}
+                        alt={item.name}
+                        fill
+                        style={{ objectFit: "cover" }}
+                        className="rounded-md"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-900">{item.name}</h3>
+                      <p className="text-sm text-gray-500">
+                        ${item.price.toFixed(2)}
+                      </p>
+
+                      <div className="flex justify-between items-center mt-2">
+                        <div className="flex items-center space-x-1 border rounded-md">
+                          <button
+                            onClick={() =>
+                              updateQuantity(
+                                item.id,
+                                Math.max(1, item.quantity - 1)
+                              )
+                            }
+                            className="px-2 py-1 hover:bg-gray-100"
+                          >
+                            <Minus size={14} />
+                          </button>
+                          <span className="text-gray-900 w-6 text-center text-sm">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updateQuantity(item.id, item.quantity + 1)
+                            }
+                            className="px-2 py-1 hover:bg-gray-100"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="font-medium mr-3">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </span>
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="text-red-600 hover:text-red-800 p-1.5"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop view - table format */}
+            <table className="min-w-full divide-y divide-gray-200 hidden lg:table">
               <thead className="bg-gray-50">
                 <tr>
                   <th
@@ -297,20 +363,20 @@ export default function CartPageContent() {
           </div>
         </div>
 
-        <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-lg font-medium mb-4">Order Summary</h2>
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between">
+        <div className="lg:col-span-1 order-1 lg:order-2 mb-6 lg:mb-0">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+            <h2 className="text-lg font-medium mb-3 sm:mb-4">Order Summary</h2>
+            <div className="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">${totalPrice.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between text-sm sm:text-base">
                 <span className="text-gray-600">Shipping</span>
                 <span className="font-medium">Free</span>
               </div>
-              <div className="border-t pt-3 mt-3">
-                <div className="flex justify-between font-semibold">
+              <div className="border-t pt-2 sm:pt-3 mt-2 sm:mt-3">
+                <div className="flex justify-between font-semibold text-sm sm:text-base">
                   <span>Total</span>
                   <span>${totalPrice.toFixed(2)}</span>
                 </div>
@@ -318,17 +384,21 @@ export default function CartPageContent() {
             </div>
 
             {/* Shipping Address Section */}
-            <div className="mt-6 mb-6">
-              <h3 className="text-md font-medium mb-2">Shipping Address</h3>
+            <div className="mt-4 sm:mt-6 mb-4 sm:mb-6">
+              <h3 className="text-sm sm:text-md font-medium mb-2">
+                Shipping Address
+              </h3>
 
               {isLoadingAddresses ? (
-                <p className="text-sm text-gray-500">Loading addresses...</p>
+                <p className="text-xs sm:text-sm text-gray-500">
+                  Loading addresses...
+                </p>
               ) : showAddressForm ? (
                 <form onSubmit={handleAddressSubmit} className="space-y-3">
                   <div>
                     <label
                       htmlFor="name"
-                      className="block text-sm text-gray-600"
+                      className="block text-xs sm:text-sm text-gray-600"
                     >
                       Address Name
                     </label>
@@ -337,7 +407,7 @@ export default function CartPageContent() {
                       id="name"
                       name="name"
                       required
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                       placeholder="Home, Work, etc."
                     />
                   </div>
@@ -345,7 +415,7 @@ export default function CartPageContent() {
                   <div>
                     <label
                       htmlFor="streetLine1"
-                      className="block text-sm text-gray-600"
+                      className="block text-xs sm:text-sm text-gray-600"
                     >
                       Street Address
                     </label>
@@ -354,14 +424,14 @@ export default function CartPageContent() {
                       id="streetLine1"
                       name="streetLine1"
                       required
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="streetLine2"
-                      className="block text-sm text-gray-600"
+                      className="block text-xs sm:text-sm text-gray-600"
                     >
                       Apartment, Suite, etc. (optional)
                     </label>
@@ -369,7 +439,7 @@ export default function CartPageContent() {
                       type="text"
                       id="streetLine2"
                       name="streetLine2"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                     />
                   </div>
 
@@ -377,7 +447,7 @@ export default function CartPageContent() {
                     <div>
                       <label
                         htmlFor="city"
-                        className="block text-sm text-gray-600"
+                        className="block text-xs sm:text-sm text-gray-600"
                       >
                         City
                       </label>
@@ -386,13 +456,13 @@ export default function CartPageContent() {
                         id="city"
                         name="city"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                       />
                     </div>
                     <div>
                       <label
                         htmlFor="state"
-                        className="block text-sm text-gray-600"
+                        className="block text-xs sm:text-sm text-gray-600"
                       >
                         State/Province
                       </label>
@@ -401,7 +471,7 @@ export default function CartPageContent() {
                         id="state"
                         name="state"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                       />
                     </div>
                   </div>
@@ -410,7 +480,7 @@ export default function CartPageContent() {
                     <div>
                       <label
                         htmlFor="postalCode"
-                        className="block text-sm text-gray-600"
+                        className="block text-xs sm:text-sm text-gray-600"
                       >
                         Postal Code
                       </label>
@@ -419,13 +489,13 @@ export default function CartPageContent() {
                         id="postalCode"
                         name="postalCode"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                       />
                     </div>
                     <div>
                       <label
                         htmlFor="country"
-                        className="block text-sm text-gray-600"
+                        className="block text-xs sm:text-sm text-gray-600"
                       >
                         Country
                       </label>
@@ -434,7 +504,7 @@ export default function CartPageContent() {
                         id="country"
                         name="country"
                         required
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                        className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                       />
                     </div>
                   </div>
@@ -442,7 +512,7 @@ export default function CartPageContent() {
                   <div>
                     <label
                       htmlFor="phoneNumber"
-                      className="block text-sm text-gray-600"
+                      className="block text-xs sm:text-sm text-gray-600"
                     >
                       Phone Number
                     </label>
@@ -450,7 +520,7 @@ export default function CartPageContent() {
                       type="tel"
                       id="phoneNumber"
                       name="phoneNumber"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                     />
                   </div>
 
@@ -463,7 +533,7 @@ export default function CartPageContent() {
                     />
                     <label
                       htmlFor="isDefault"
-                      className="ml-2 block text-sm text-gray-600"
+                      className="ml-2 block text-xs sm:text-sm text-gray-600"
                     >
                       Set as default address
                     </label>
@@ -473,13 +543,13 @@ export default function CartPageContent() {
                     <button
                       type="button"
                       onClick={() => setShowAddressForm(false)}
-                      className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
+                      className="px-3 py-1 text-xs sm:text-sm text-gray-600 hover:text-gray-800"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700"
+                      className="px-3 py-1 bg-indigo-600 text-white text-xs sm:text-sm rounded hover:bg-indigo-700"
                     >
                       Save Address
                     </button>
@@ -487,11 +557,11 @@ export default function CartPageContent() {
                 </form>
               ) : addresses.length > 0 ? (
                 <div>
-                  <div className="mb-3">
+                  <div className="mb-2 sm:mb-3">
                     <select
                       value={selectedAddressId || ""}
                       onChange={(e) => setSelectedAddressId(e.target.value)}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                      className="mt-1 block w-full text-xs sm:text-sm rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                     >
                       {addresses.map((address) => (
                         <option key={address.id} value={address.id}>
@@ -501,7 +571,7 @@ export default function CartPageContent() {
                     </select>
                   </div>
                   {selectedAddressId && (
-                    <div className="text-sm text-gray-600 p-3 bg-gray-50 rounded">
+                    <div className="text-xs sm:text-sm text-gray-600 p-2 sm:p-3 bg-gray-50 rounded">
                       {(() => {
                         const address = addresses.find(
                           (a) => a.id === selectedAddressId
@@ -533,19 +603,19 @@ export default function CartPageContent() {
                   )}
                   <button
                     onClick={() => setShowAddressForm(true)}
-                    className="text-indigo-600 hover:text-indigo-800 text-sm mt-2"
+                    className="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm mt-2"
                   >
                     Add new address
                   </button>
                 </div>
               ) : (
                 <div>
-                  <p className="mb-3 text-sm text-gray-500">
+                  <p className="mb-2 sm:mb-3 text-xs sm:text-sm text-gray-500">
                     No shipping addresses found.
                   </p>
                   <button
                     onClick={() => setShowAddressForm(true)}
-                    className="text-indigo-600 hover:text-indigo-800 text-sm"
+                    className="text-indigo-600 hover:text-indigo-800 text-xs sm:text-sm"
                   >
                     + Add shipping address
                   </button>
@@ -560,7 +630,7 @@ export default function CartPageContent() {
                 disabled={
                   isCheckingOut || (addresses.length === 0 && !showAddressForm)
                 }
-                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-indigo-600 text-white py-2 px-4 text-xs sm:text-sm rounded-md hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isCheckingOut
                   ? "Processing..."
@@ -570,15 +640,15 @@ export default function CartPageContent() {
               </button>
               <button
                 onClick={() => router.push("/products")}
-                className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 transition"
+                className="w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 text-xs sm:text-sm rounded-md hover:bg-gray-50 transition"
               >
                 Continue Shopping
               </button>
               <Link
                 href="/"
-                className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-50 transition"
+                className="w-full flex items-center justify-center gap-1 sm:gap-2 border border-gray-300 text-gray-700 py-2 px-4 text-xs sm:text-sm rounded-md hover:bg-gray-50 transition"
               >
-                <Home size={18} /> Back to Homepage
+                <Home size={14} className="sm:size-[16px]" /> Back to Homepage
               </Link>
             </div>
           </div>
