@@ -2,22 +2,25 @@ import { OrderStatus } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import prisma from "../../../lib/prisma"; // Use the prisma singleton
+import prisma from "../../../lib/prisma";
 
-async function getOrders(status?: OrderStatus) {
-  // Fix the query object type and status handling
-  const query: { status?: OrderStatus } = {};
+async function getOrders(statusParam?: string) {
+  // Create where clause conditionally
+  const where: { status?: OrderStatus } = {};
 
-  // Only add status to query if it's a valid status value
+  // Check if status is a valid OrderStatus enum value
   if (
-    status &&
-    ["PENDING", "CONFIRMED", "DELIVERED", "CANCELLED"].includes(status)
+    statusParam &&
+    ["PENDING", "CONFIRMED", "DELIVERED", "CANCELLED"].includes(statusParam)
   ) {
-    query.status = status;
+    where.status = statusParam as OrderStatus;
   }
 
+  // Log the query for debugging
+  console.log("Orders query:", { where });
+
   const orders = await prisma.order.findMany({
-    where: query, // Now properly typed
+    where,
     orderBy: { createdAt: "desc" },
     include: {
       user: {
@@ -58,15 +61,11 @@ export default async function AdminOrdersPage({
     redirect("/auth/login");
   }
 
-  // Get status from search params and validate it
+  // Get status directly from search params without validation
   const { status } = searchParams;
-  const validStatus =
-    status &&
-    ["PENDING", "CONFIRMED", "DELIVERED", "CANCELLED"].includes(status)
-      ? (status as OrderStatus)
-      : undefined;
 
-  const orders = await getOrders(validStatus);
+  // Pass status directly to getOrders which will filter orders by status
+  const orders = await getOrders(status);
 
   return (
     <div className="min-h-screen flex flex-col">
