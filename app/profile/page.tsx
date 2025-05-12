@@ -405,12 +405,16 @@ export default function ProfilePage() {
             </div>
             <div className="mt-2 sm:mt-0">
               {profile?.role === "ADMIN" && (
-                <Link
+                <a
                   href="/admin"
-                  className="bg-white text-indigo-600 px-4 py-2 text-sm rounded-md hover:bg-indigo-50"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    router.push('/admin');
+                  }}
+                  className="bg-white text-indigo-600 px-4 py-2 text-sm rounded-md hover:bg-indigo-50 inline-block"
                 >
                   Admin Dashboard
-                </Link>
+                </a>
               )}
             </div>
           </div>
